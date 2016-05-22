@@ -1,13 +1,11 @@
-package com.example.android.sunshine.app;
+
+package com.gzr7702.movieguide;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.gzr7702.movieguide.R;
-import com.gzr7702.movieguide.SettingsActivity;
 
 
 public class DetailActivity extends ActionBarActivity {

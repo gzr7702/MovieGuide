@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
                                     int position, long id) {
                 Toast.makeText(getApplicationContext(), "" + position,
                         Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), DetailActivity.class));
             }
         });
 
