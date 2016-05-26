@@ -12,9 +12,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class GetMovieData extends AsyncTask<String, Void, Void> {
+public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
-    private final String LOG_TAG = GetMovieData.class.getSimpleName();
+    private final String LOG_TAG = GetMovieDataTask.class.getSimpleName();
 
     @Override
     protected Void doInBackground(String... params) {
@@ -30,7 +30,7 @@ public class GetMovieData extends AsyncTask<String, Void, Void> {
             final String BASE_URL = "http://api.themoviedb.org/3/movie/";
 
             final String QUERY_TYPE = params[0];
-            final String APPID_PARAM = null; //Grab the key from another file
+            final String APPID_PARAM = "api_key";
 
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                     .appendPath(QUERY_TYPE)
@@ -38,6 +38,8 @@ public class GetMovieData extends AsyncTask<String, Void, Void> {
                     .build();
 
             URL url = new URL(builtUri.toString());
+
+            Log.v(LOG_TAG, url.toString());
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();

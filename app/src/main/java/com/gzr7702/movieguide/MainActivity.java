@@ -1,7 +1,9 @@
 package com.gzr7702.movieguide;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +18,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        updateMovieData();
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
         gridview.setAdapter(new ImageAdapter(this));
@@ -50,5 +54,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateMovieData() {
+        GetMovieDataTask movieTask = new GetMovieDataTask();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key),
+                getString(R.string.pref_sort_order_default));
+        movieTask.execute(sortOrder);
     }
 }

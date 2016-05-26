@@ -10,17 +10,17 @@
     <!-- Key name for storing sort order in SharedPreferences -->
     <string name="pref_sort_order_key" translatable="false">sort</string>
     <!-- Default sort order preference -->
-    <string name="pref_sort_order_default" translatable="false">Sort</string>
+    <string name="pref_sort_order_default" translatable="false">popular</string>
 
 
     <!-- sort order by popularity label -->
     <string name="pref_sort_label_popularity" translatable="false">Most Popular</string>
     <!-- sort order by ratings label -->
-    <string name="pref_sort_label_rating" translatable="false">Highest Ratings</string>
+    <string name="pref_sort_label_rating" translatable="false">Top Ratings</string>
 
     <!-- sort order by popularity values-->
-    <string name="pref_sort_popularity" translatable="false">popularity</string>
+    <string name="pref_sort_popularity" translatable="false">popular</string>
     <!-- sort order by ratings values-->
-    <string name="pref_sort_rating" translatable="false">rating</string>
+    <string name="pref_sort_rating" translatable="false">top_rated</string>
 
 </resources>
