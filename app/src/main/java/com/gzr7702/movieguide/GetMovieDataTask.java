@@ -66,8 +66,9 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
                 return null;
             }
 
+            String jsonStr = buffer.toString();
+            Log.v(LOG_TAG, jsonStr);
             //implement getDataFromJson ===============================================================
-            //jsonStr = buffer.toString();
             //getDataFromJson(jsonStr, locationQuery);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
