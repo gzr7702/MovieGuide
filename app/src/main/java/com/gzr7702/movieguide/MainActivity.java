@@ -59,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateMovieData() {
         GetMovieDataTask movieTask = new GetMovieDataTask();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key),
-                getString(R.string.pref_sort_order_default));
+        String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
         movieTask.execute(sortOrder);
     }
 }

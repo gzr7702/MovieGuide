@@ -5,6 +5,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +20,47 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = GetMovieDataTask.class.getSimpleName();
 
+    private void getDataFromJson(String jsonStr, String sortOrder)
+            throws JSONException {
+
+        // Keys for Pages of json and List of results
+        final String PAGE = "page";
+        final String RESULTS = "results";
+
+        // Movie objects (keys)
+        final String POSTER_PATH = "poster_path";
+        final String TITLE = "original_title";
+        final String RELEASE_DATE = "release_date";
+        final String RATING = "vote_average";
+        final String PLOT_SUMMARY = "overview";
+
+        try {
+            JSONObject pages = new JSONObject(jsonStr);
+            JSONArray movieArray = pages.getJSONArray(RESULTS);
+
+            for (int i = 0; i < movieArray.length(); i++) {
+                JSONObject movie = movieArray.getJSONObject(i);
+
+                String posterPath = movie.getString(POSTER_PATH);
+                String title = movie.getString(TITLE);
+                String releaseDate = movie.getString(RELEASE_DATE);
+                Double rating = movie.getDouble(RATING);
+                String plot = movie.getString(PLOT_SUMMARY);
+
+                String movie_string = posterPath + " " + title + " " + releaseDate + " " +
+                        rating + " " + plot;
+                Log.v(LOG_TAG, movie_string);
+            }
+
+
+            Log.d(LOG_TAG, "Retrieved movie data.");
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected Void doInBackground(String... params) {
 
@@ -26,14 +71,14 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
         try {
             // Construct the URL
-            //"http://api.themoviedb.org/3/movie/popular?api_key=asdfasdf;
             final String BASE_URL = "http://api.themoviedb.org/3/movie/";
 
-            final String QUERY_TYPE = params[0];
+            // Sort by rating or popularity
+            final String sortOrder = params[0];
             final String APPID_PARAM = "api_key";
 
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendPath(QUERY_TYPE)
+                    .appendPath(sortOrder)
                     .appendQueryParameter(APPID_PARAM, Info.getKey())
                     .build();
 
@@ -41,7 +86,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
             Log.v(LOG_TAG, url.toString());
 
-            // Create the request to OpenWeatherMap, and open the connection
+            // Create the request to movieDB, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -68,13 +113,12 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
             String jsonStr = buffer.toString();
             Log.v(LOG_TAG, jsonStr);
-            //implement getDataFromJson ===============================================================
-            //getDataFromJson(jsonStr, locationQuery);
+            getDataFromJson(jsonStr, sortOrder);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-        //} catch (JSONException e) {
-        //    Log.e(LOG_TAG, e.getMessage(), e);
-        //    e.printStackTrace();
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
