@@ -20,11 +20,11 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = GetMovieDataTask.class.getSimpleName();
 
-    private void getDataFromJson(String jsonStr, String sortOrder)
+
+    private void getDataFromJson(String jsonStr)
             throws JSONException {
 
-        // Keys for Pages of json and List of results
-        final String PAGE = "page";
+        // Keys for List of results
         final String RESULTS = "results";
 
         // Movie objects (keys)
@@ -41,17 +41,17 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
             for (int i = 0; i < movieArray.length(); i++) {
                 JSONObject movie = movieArray.getJSONObject(i);
 
-                String posterPath = movie.getString(POSTER_PATH);
                 String title = movie.getString(TITLE);
+                String posterPath = movie.getString(POSTER_PATH);
                 String releaseDate = movie.getString(RELEASE_DATE);
                 Double rating = movie.getDouble(RATING);
                 String plot = movie.getString(PLOT_SUMMARY);
+
 
                 String movie_string = posterPath + " " + title + " " + releaseDate + " " +
                         rating + " " + plot;
                 Log.v(LOG_TAG, movie_string);
             }
-
 
             Log.d(LOG_TAG, "Retrieved movie data.");
 
@@ -66,8 +66,6 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-
-        String movieJSON = null;
 
         try {
             // Construct the URL
@@ -113,7 +111,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
             String jsonStr = buffer.toString();
             Log.v(LOG_TAG, jsonStr);
-            getDataFromJson(jsonStr, sortOrder);
+            getDataFromJson(jsonStr);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
         } catch (JSONException e) {

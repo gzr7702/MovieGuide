@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -19,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        updateMovieData();
+        getMovieData();
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
         gridview.setAdapter(new ImageAdapter(this));
@@ -56,10 +55,14 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateMovieData() {
+    /*
+    * Get data from MovieDB
+     */
+    private void getMovieData() {
         GetMovieDataTask movieTask = new GetMovieDataTask();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
         movieTask.execute(sortOrder);
     }
+
 }

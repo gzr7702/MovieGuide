@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 /**
- * Created by rob on 5/4/16.
+ * Adapter to sync images with gridview
  */
 
 public class ImageAdapter extends BaseAdapter {
