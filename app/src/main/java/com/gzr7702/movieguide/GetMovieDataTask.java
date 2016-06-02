@@ -1,9 +1,15 @@
 
 package com.gzr7702.movieguide;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.gzr7702.movieguide.data.MovieContract.MovieEntry;
+import com.gzr7702.movieguide.data.MovieDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,8 +25,15 @@ import java.net.URL;
 public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = GetMovieDataTask.class.getSimpleName();
+    public Context mContext;
 
-
+    // We use a constructor so we can pass in the context for our DB helper.
+    public void GetMovieDataTask(Context context) {
+        mContext = (Context)context;
+    }
+    /*
+      * Parse the JSON data for what we need and stash it in the database
+     */
     private void getDataFromJson(String jsonStr)
             throws JSONException {
 
@@ -33,6 +46,9 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
         final String RELEASE_DATE = "release_date";
         final String RATING = "vote_average";
         final String PLOT_SUMMARY = "overview";
+
+        MovieDbHelper mMovieDbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
 
         try {
             JSONObject pages = new JSONObject(jsonStr);
@@ -47,17 +63,29 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
                 Double rating = movie.getDouble(RATING);
                 String plot = movie.getString(PLOT_SUMMARY);
 
-
+                //Just for debugging, we print the info
                 String movie_string = posterPath + " " + title + " " + releaseDate + " " +
                         rating + " " + plot;
                 Log.v(LOG_TAG, movie_string);
+
+                ContentValues values = new ContentValues();
+                values.put(MovieEntry.COLUMN_TITLE, title);
+                values.put(MovieEntry.COLUMN_POSTER_PATH, posterPath);
+                values.put(MovieEntry.COLUMN_REALEASE_DATE, releaseDate);
+                values.put(MovieEntry.COLUMN_RATING, rating);
+                values.put(MovieEntry.COLUMN_PLOT_SUMMARY, plot);
+
+                db.insert(MovieEntry.TABLE_NAME, null, values);
             }
+
 
             Log.d(LOG_TAG, "Retrieved movie data.");
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
+        } finally {
+            db.close();
         }
     }
 

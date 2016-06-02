@@ -14,6 +14,8 @@ import com.squareup.picasso.Picasso;
  */
 
 public class ImageAdapter extends BaseAdapter {
+    private final String LOG_TAG = ImageAdapter.class.getSimpleName();
+
     private Context mContext;
 
     public ImageAdapter(Context c) {
@@ -21,7 +23,8 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     public int getCount() {
-        return mImageUrl.length;
+        //return mImageUrl.length;
+        return tempImageUrl.length;
     }
 
     public Object getItem(int position) {
@@ -45,16 +48,15 @@ public class ImageAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        //imageView.setImageResource(mThumbIds[position]);
         Picasso.with(mContext)
-                .load(mImageUrl[position])
+                .load(tempImageUrl[position])
                 .into(imageView);
         return imageView;
     }
 
     // references to our images
     // Random internet images for now
-    private String[] mImageUrl = {
+    private String[] tempImageUrl = {
             "https://i.ytimg.com/vi/tntOCGkgt98/maxresdefault.jpg",
             "https://upload.wikimedia.org/wikipedia/commons/1/1e/Large_Siamese_cat_tosses_a_mouse.jpg",
             "http://cdn.grumpycats.com/wp-content/uploads/2016/02/12654647_974282002607537_7798179861389974677_n-758x758.jpg",
