@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,9 @@ import android.widget.GridView;
 import com.gzr7702.movieguide.data.MovieContract;
 import com.gzr7702.movieguide.data.MovieDbHelper;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 
 /**
  * Fragment that displays page of movie posters
@@ -27,7 +31,6 @@ public class MovieFragment extends Fragment {
    private final String LOG_TAG = MainActivity.class.getSimpleName();
 
    public MovieFragment() {
-
    }
 
    @Override
@@ -75,26 +78,30 @@ public class MovieFragment extends Fragment {
    @Override
    public void onStart() {
       super.onStart();
-      // Commented out just to get running ======================================================
-      //getMovieData();
-      //createPosterList();
+      getMovieData();
+      createPosterList();
    }
 
    /*
 * Get data from MovieDB
  */
    private void getMovieData() {
-      GetMovieDataTask movieTask = new GetMovieDataTask();
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+      GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext());
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
       String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_sort_order_default));
       movieTask.execute(sortOrder);
    }
 
-   private String[] createPosterList() {
+   private URL[] createPosterList() {
+       Log.v(LOG_TAG, "Started createPosterList()");
       MovieDbHelper mMovieDbHelper = new MovieDbHelper(getContext());
       SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
+       final int MAX_MOVIES = 20;
 
-      String posterPathArray[] = new String[20];
+      final String BASE_URL = "http://image.tmdb.org/t/p/";
+      // Image size: "w92", "w154", "w185", "w342", "w500", "w780", or "original"
+      final String imageSize = "w185";
+       URL posterUrls[] = new URL[20];
 
       String[] projection = {
               MovieContract.MovieEntry.COLUMN_POSTER_PATH
@@ -110,15 +117,30 @@ public class MovieFragment extends Fragment {
               null
       );
 
+       // Loop through 20 movies and build an
+       // array of urls
       c.moveToFirst();
-      for (int i = 0; i < c.getCount(); i++) {
-         posterPathArray[i] = c.getString(i);
+      for (int i = 0; i < MAX_MOVIES; i++) {
+          String posterPath = c.getString(0);
+          Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+               .appendPath(imageSize)
+               .appendPath(posterPath)
+               .build();
+
+
+          try {
+              posterUrls[i] = new URL(builtUri.toString());
+          } catch (MalformedURLException mue) {
+              Log.e(LOG_TAG, "Error ", mue);
+          }
+
+          c.moveToNext();
       }
 
       db.close();
 
-      Log.v(LOG_TAG, posterPathArray.toString());
+      Log.v(LOG_TAG, posterUrls.toString());
 
-      return posterPathArray;
+      return posterUrls;
    }
 }

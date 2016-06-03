@@ -28,8 +28,8 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
     public Context mContext;
 
     // We use a constructor so we can pass in the context for our DB helper.
-    public void GetMovieDataTask(Context context) {
-        mContext = (Context)context;
+    public GetMovieDataTask(Context context) {
+        mContext = context;
     }
     /*
       * Parse the JSON data for what we need and stash it in the database
@@ -66,7 +66,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
                 //Just for debugging, we print the info
                 String movie_string = posterPath + " " + title + " " + releaseDate + " " +
                         rating + " " + plot;
-                Log.v(LOG_TAG, movie_string);
+                //Log.v(LOG_TAG, movie_string);
 
                 ContentValues values = new ContentValues();
                 values.put(MovieEntry.COLUMN_TITLE, title);
@@ -79,7 +79,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
             }
 
 
-            Log.d(LOG_TAG, "Retrieved movie data.");
+            Log.v(LOG_TAG, "Retrieved movie data.");
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -110,7 +110,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
             URL url = new URL(builtUri.toString());
 
-            Log.v(LOG_TAG, url.toString());
+            //Log.v(LOG_TAG, url.toString());
 
             // Create the request to movieDB, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -138,7 +138,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
             }
 
             String jsonStr = buffer.toString();
-            Log.v(LOG_TAG, jsonStr);
+            //Log.v(LOG_TAG, jsonStr);
             getDataFromJson(jsonStr);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
