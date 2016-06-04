@@ -3,13 +3,11 @@ package com.gzr7702.movieguide;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.gzr7702.movieguide.data.MovieContract;
 import com.gzr7702.movieguide.data.MovieContract.MovieEntry;
 import com.gzr7702.movieguide.data.MovieDbHelper;
 
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
@@ -91,59 +88,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
         }
     }
 
-    private URL[] createPosterList() {
-        Log.v(LOG_TAG, "Started createPosterList()");
-        MovieDbHelper mMovieDbHelper = new MovieDbHelper(mContext);
-        SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
-        final int MAX_MOVIES = 20;
 
-        final String BASE_URL = "http://image.tmdb.org/t/p/";
-        // Image size: "w92", "w154", "w185", "w342", "w500", "w780", or "original"
-        final String imageSize = "w185";
-        URL posterUrls[] = new URL[20];
-
-        String[] projection = {
-                MovieContract.MovieEntry.COLUMN_POSTER_PATH
-        };
-
-        Cursor c = db.query(
-                MovieContract.MovieEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        // Loop through 20 movies and build an
-        // array of urls
-        c.moveToFirst();
-        for (int i = 0; i < MAX_MOVIES; i++) {
-            String posterPath = c.getString(0);
-            Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendPath(imageSize)
-                    .appendPath(posterPath)
-                    .build();
-
-
-            try {
-                posterUrls[i] = new URL(builtUri.toString());
-            } catch (MalformedURLException mue) {
-                Log.e(LOG_TAG, "Error ", mue);
-            }
-
-            c.moveToNext();
-        }
-
-        db.close();
-
-        for (URL url: posterUrls) {
-            Log.v(LOG_TAG, url.toString());
-        }
-
-        return posterUrls;
-    }
 
     @Override
     protected Void doInBackground(String... params) {
@@ -194,9 +139,8 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
             }
 
             String jsonStr = buffer.toString();
-            //Log.v(LOG_TAG, jsonStr);
+            Log.v(LOG_TAG, jsonStr);
             getDataFromJson(jsonStr);
-            createPosterList();
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
         } catch (JSONException e) {
