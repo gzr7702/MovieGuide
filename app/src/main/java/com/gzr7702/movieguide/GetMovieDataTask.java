@@ -63,11 +63,6 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
                 Double rating = movie.getDouble(RATING);
                 String plot = movie.getString(PLOT_SUMMARY);
 
-                //Just for debugging, we print the info
-                String movie_string = posterPath + " " + title + " " + releaseDate + " " +
-                        rating + " " + plot;
-                //Log.v(LOG_TAG, movie_string);
-
                 ContentValues values = new ContentValues();
                 values.put(MovieEntry.COLUMN_TITLE, title);
                 values.put(MovieEntry.COLUMN_POSTER_PATH, posterPath);
@@ -87,8 +82,6 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
             db.close();
         }
     }
-
-
 
     @Override
     protected Void doInBackground(String... params) {

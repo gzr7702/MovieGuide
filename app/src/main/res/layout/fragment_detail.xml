@@ -16,7 +16,6 @@
             android:textSize="40sp"
             android:textStyle="bold"
             android:textColor="#ffffff"
-            android:text="Bawnd"
             android:padding="40dp"
             android:gravity="center_vertical"
             android:background="#2a3a7a"
