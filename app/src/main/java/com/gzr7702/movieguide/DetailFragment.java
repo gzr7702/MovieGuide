@@ -24,10 +24,11 @@ public class DetailFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onCreate(Bundle onSavedInstanceState) {
+        super.onCreate(onSavedInstanceState);
+        Intent intent = getActivity().getIntent();
+        mPosterPath = intent.getStringExtra("posterPath");
 
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         MovieDbHelper mMovieDbHelper = new MovieDbHelper(this.getContext());
         SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
 
@@ -35,32 +36,40 @@ public class DetailFragment extends Fragment {
                 MovieContract.MovieEntry.COLUMN_TITLE,
                 MovieContract.MovieEntry.COLUMN_POSTER_PATH,
                 MovieContract.MovieEntry.COLUMN_REALEASE_DATE,
+                MovieContract.MovieEntry.COLUMN_RUNNING_TIME,
                 MovieContract.MovieEntry.COLUMN_RATING,
                 MovieContract.MovieEntry.COLUMN_PLOT_SUMMARY
         };
 
+        String selection = MovieContract.MovieEntry.COLUMN_POSTER_PATH + "=?";
+        String[] selectionArgs = {
+                mPosterPath
+        };
+
+
         Cursor c = db.query(
                 MovieContract.MovieEntry.TABLE_NAME,
-                projection,
                 null,
-                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 null
         );
 
-        //TODO: Set up the rest of the views using DB
-        mTitleView = (TextView) rootView.findViewById(R.id.detail_title_textview);
-        mTitleView.setText("ASDFASDFASDf");
-
-        return rootView;
-
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Intent intent = getActivity().getIntent();
-        mPosterPath = intent.getStringExtra("posterPath");
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+        //TODO: Set up the rest of the views using DB
+        mTitleView = (TextView) rootView.findViewById(R.id.detail_title_textview);
+        mTitleView.setText("Bond");
+
+        return rootView;
+
     }
 }
