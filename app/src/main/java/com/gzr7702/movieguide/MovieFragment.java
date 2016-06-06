@@ -24,7 +24,8 @@ import com.gzr7702.movieguide.data.MovieDbHelper;
  */
 public class MovieFragment extends Fragment {
    private final String LOG_TAG = MainActivity.class.getSimpleName();
-   private String[] mImageUrlList = new String[20];
+   final int MAX_MOVIES = 20;
+   private String[] mImageUrlList = new String[MAX_MOVIES];
 
    public MovieFragment() {
    }
@@ -34,8 +35,7 @@ public class MovieFragment extends Fragment {
       super.onCreate(savedInstanceState);
       // Add this line in order for this fragment to handle menu events.
       setHasOptionsMenu(true);
-       getMovieData();
-       createPosterList();
+      updateMovieData();
    }
 
    @Override
@@ -56,7 +56,7 @@ public class MovieFragment extends Fragment {
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                             Bundle savedInstanceState) {
 
-       final ImageAdapter mImageAdapter = new ImageAdapter(getActivity(), mImageUrlList);
+       final ImageAdapter mImageAdapter = new ImageAdapter(getActivity(), mImageUrlList, MAX_MOVIES);
        View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
        GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
        gridview.setAdapter(mImageAdapter);
@@ -65,16 +65,10 @@ public class MovieFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View v,
                                      int position, long id) {
-                Cursor c = (Cursor) adapterView.getItemAtPosition(position);
-                startActivity(new Intent(getActivity(), DetailActivity.class));
-                if (c != null) {
-                    //Intent intent = new Intent(getActivity(), DetailActivity.class)
-                    //        .setData(mImageUrlList
-                    //        ));
-                    startActivity(new Intent(getActivity(), DetailActivity.class));
+                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra("posterPath", mImageUrlList[position]);
+                startActivity(intent);
                 }
-            }
-       });
+            });
 
           return rootView;
    }
@@ -82,19 +76,19 @@ public class MovieFragment extends Fragment {
    /*
       * Get data from MovieDB
    */
-   private void getMovieData() {
+   private void updateMovieData() {
       GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext());
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
       String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key),
               getString(R.string.pref_sort_order_default));
       movieTask.execute(sortOrder);
+      updatePosterList();
    }
 
-    private void createPosterList() {
+    private void updatePosterList() {
         Log.v(LOG_TAG, "Started createPosterList()");
         MovieDbHelper mMovieDbHelper = new MovieDbHelper(this.getContext());
         SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
-        final int MAX_MOVIES = 20;
 
         final String BASE_URL = "http://image.tmdb.org/t/p/";
         // Image size: "w92", "w154", "w185", "w342", "w500", "w780", or "original"

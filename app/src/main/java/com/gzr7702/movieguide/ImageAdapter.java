@@ -17,11 +17,13 @@ public class ImageAdapter extends BaseAdapter {
     private final String LOG_TAG = ImageAdapter.class.getSimpleName();
 
     private Context mContext;
+    private int mNumberMovies;
     private String mImageUrlList[] = new String[20];
 
-    public ImageAdapter(Context c, String[] imageUrlList) {
+    public ImageAdapter(Context c, String[] imageUrlList, int numberMovies) {
         mContext = c;
         mImageUrlList = imageUrlList;
+        mNumberMovies = numberMovies;
     }
 
     public int getCount() {

@@ -14,7 +14,7 @@ import com.gzr7702.movieguide.data.MovieContract.MovieEntry;
 public class MovieDbHelper extends SQLiteOpenHelper {
 
     private String LOG_TAG = MovieDbHelper.class.getSimpleName();
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     static final String DATABASE_NAME = "movie.db";
 
@@ -30,6 +30,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
                 MovieEntry.COLUMN_TITLE + " REAL NOT NULL, " +
                 MovieEntry.COLUMN_POSTER_PATH + " REAL NOT NULL, " +
+                MovieEntry.COLUMN_RUNNING_TIME + " REAL NOT NULL, " +
                 MovieEntry.COLUMN_REALEASE_DATE+ " REAL NOT NULL, " +
                 MovieEntry.COLUMN_PLOT_SUMMARY + " REAL NOT NULL, " +
                 MovieEntry.COLUMN_RATING + " REAL NOT NULL);";
