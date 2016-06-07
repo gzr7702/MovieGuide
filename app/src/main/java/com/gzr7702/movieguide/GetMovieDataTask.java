@@ -44,7 +44,6 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
         final String POSTER_PATH = "poster_path";
         final String TITLE = "original_title";
         final String RELEASE_DATE = "release_date";
-        final String RUN_TIME = "release_date";
         final String RATING = "vote_average";
         final String PLOT_SUMMARY = "overview";
 
@@ -61,15 +60,13 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
                 String title = movie.getString(TITLE);
                 String posterPath = movie.getString(POSTER_PATH);
                 String releaseDate = movie.getString(RELEASE_DATE);
-                String runTime = movie.getString(RUN_TIME);
                 Double rating = movie.getDouble(RATING);
                 String plot = movie.getString(PLOT_SUMMARY);
 
                 ContentValues values = new ContentValues();
                 values.put(MovieEntry.COLUMN_TITLE, title);
                 values.put(MovieEntry.COLUMN_POSTER_PATH, posterPath);
-                values.put(MovieEntry.COLUMN_REALEASE_DATE, releaseDate);
-                values.put(MovieEntry.COLUMN_RUNNING_TIME, runTime);
+                values.put(MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
                 values.put(MovieEntry.COLUMN_RATING, rating);
                 values.put(MovieEntry.COLUMN_PLOT_SUMMARY, plot);
 

@@ -25,7 +25,7 @@ import com.gzr7702.movieguide.data.MovieDbHelper;
 public class MovieFragment extends Fragment {
    private final String LOG_TAG = MainActivity.class.getSimpleName();
    final int MAX_MOVIES = 20;
-   private String[] mImageUrlList = new String[MAX_MOVIES];
+   private String[] mPosterPaths = new String[MAX_MOVIES];
 
    public MovieFragment() {
    }
@@ -56,7 +56,7 @@ public class MovieFragment extends Fragment {
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                             Bundle savedInstanceState) {
 
-       final ImageAdapter mImageAdapter = new ImageAdapter(getActivity(), mImageUrlList, MAX_MOVIES);
+       final ImageAdapter mImageAdapter = new ImageAdapter(getActivity(), mPosterPaths, MAX_MOVIES);
        View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
        GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
        gridview.setAdapter(mImageAdapter);
@@ -65,7 +65,7 @@ public class MovieFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View v,
                                      int position, long id) {
-                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra("posterPath", mImageUrlList[position]);
+                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra("posterPath", mPosterPaths[position]);
                 startActivity(intent);
                 }
             });
@@ -85,14 +85,15 @@ public class MovieFragment extends Fragment {
       updatePosterList();
    }
 
+    /*
+      * Query the database to get all poster paths, then make a list of urls
+     */
     private void updatePosterList() {
         Log.v(LOG_TAG, "Started createPosterList()");
         MovieDbHelper mMovieDbHelper = new MovieDbHelper(this.getContext());
         SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
 
-        final String BASE_URL = "http://image.tmdb.org/t/p/";
-        // Image size: "w92", "w154", "w185", "w342", "w500", "w780", or "original"
-        final String imageSize = "w185";
+
 
         String[] projection = {
                 MovieContract.MovieEntry.COLUMN_POSTER_PATH
@@ -110,14 +111,20 @@ public class MovieFragment extends Fragment {
 
         // Loop through 20 movies and build an
         // array of urls
-        c.moveToFirst();
-        for (int i = 0; i < MAX_MOVIES; i++) {
-            String posterPath = c.getString(0);
-            mImageUrlList[i] = BASE_URL + imageSize + posterPath;
-
-            c.moveToNext();
+        if (c != null && c.moveToFirst()) {
+            c.moveToFirst();
+            for (int i = 0; i < MAX_MOVIES; i++) {
+                mPosterPaths[i] = c.getString(0);
+                c.moveToNext();
+            }
         }
 
         db.close();
+    }
+
+    //TODO: save poster list
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 }

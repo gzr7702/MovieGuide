@@ -18,12 +18,20 @@ public class ImageAdapter extends BaseAdapter {
 
     private Context mContext;
     private int mNumberMovies;
-    private String mImageUrlList[] = new String[20];
+    private String mImageUrlList[];
 
-    public ImageAdapter(Context c, String[] imageUrlList, int numberMovies) {
+    public ImageAdapter(Context c, String[] posterPaths, int numberMovies) {
         mContext = c;
-        mImageUrlList = imageUrlList;
         mNumberMovies = numberMovies;
+        mImageUrlList = new String[mNumberMovies];
+
+        // Take poster paths and create a list of full URLs
+        final String BASE_URL = "http://image.tmdb.org/t/p/";
+        // Image size: "w92", "w154", "w185", "w342", "w500", "w780", or "original"
+        final String imageSize = "w185";
+        for (int i = 0; i < numberMovies; i++) {
+            mImageUrlList[i] = BASE_URL + imageSize + posterPaths[i];
+        }
     }
 
     public int getCount() {
@@ -37,8 +45,6 @@ public class ImageAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return 0;
     }
-
-
 
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
