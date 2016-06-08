@@ -9,10 +9,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gzr7702.movieguide.data.MovieContract;
 import com.gzr7702.movieguide.data.MovieDbHelper;
+import com.squareup.picasso.Picasso;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class DetailFragment extends Fragment {
@@ -23,12 +29,6 @@ public class DetailFragment extends Fragment {
     private String mReleaseDate;
     private String mRating;
     private String mPlotSummary;
-
-    private TextView mPosterView;
-    private TextView mTitleView;
-    private TextView mReleaseDateView;
-    private TextView mRatingView;
-    private TextView mSummaryView;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -67,10 +67,27 @@ public class DetailFragment extends Fragment {
                 null
         );
 
+        //TODO: change poster path to retreive image
+
         if( cursor != null && cursor.moveToFirst() ){
             mTitle = cursor.getString(cursor.getColumnIndex("title"));
             mPosterPath = cursor.getString(cursor.getColumnIndex("poster_path"));
-            mReleaseDate = cursor.getString(cursor.getColumnIndex("release_date"));
+
+            // Reformat date from yyyy-mm-dd to year only
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String rawDate = cursor.getString(cursor.getColumnIndex("release_date"));
+            Date date = new Date();
+            try{
+                date = format.parse(rawDate);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int releaseYear = calendar.get(Calendar.YEAR);
+            mReleaseDate = String.valueOf(releaseYear);
+
             mRating = cursor.getString(cursor.getColumnIndex("rating"));
             mPlotSummary = cursor.getString(cursor.getColumnIndex("plot_summary"));
             cursor.close();
@@ -91,17 +108,28 @@ public class DetailFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        //TODO: Set up the rest of the views using DB
-        mTitleView = (TextView) rootView.findViewById(R.id.detail_title_textview);
-        //mPosterView =
-        mReleaseDateView = (TextView) rootView.findViewById(R.id.detail_movie_year);
-        mRatingView = (TextView) rootView.findViewById(R.id.detail_user_rating);
-        mSummaryView = (TextView) rootView.findViewById(R.id.detail_movie_blurb);
+        TextView titleView = (TextView) rootView.findViewById(R.id.detail_title_textview);
+        ImageView posterView = (ImageView) rootView.findViewById(R.id.detail_movie_poster);
+        TextView releaseDateView = (TextView) rootView.findViewById(R.id.detail_movie_year);
+        TextView ratingView = (TextView) rootView.findViewById(R.id.detail_user_rating);
+        TextView summaryView = (TextView) rootView.findViewById(R.id.detail_movie_blurb);
 
-        mTitleView.setText(mTitle);
-        mReleaseDateView.setText(mReleaseDate);
-        mRatingView.setText(mRating);
-        mSummaryView.setText(mPlotSummary);
+        titleView.setText(mTitle);
+        releaseDateView.setText(mReleaseDate);
+        ratingView.setText(mRating);
+        summaryView.setText(mPlotSummary);
+
+        // We're going to get the pic from the internet
+        String BASE_URL = "http://image.tmdb.org/t/p/";
+        String imageSize = "w185";
+        String mImageUrl = BASE_URL + imageSize + mPosterPath;
+
+        posterView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        posterView.setPadding(0, 0, 0, 0);
+        Picasso.with(this.getContext())
+                .load(mImageUrl)
+                .placeholder(R.drawable.placeholder)
+                .into(posterView);
 
         return rootView;
 

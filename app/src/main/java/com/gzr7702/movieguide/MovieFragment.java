@@ -49,6 +49,7 @@ public class MovieFragment extends Fragment {
          return true;
       }
 
+
       return super.onOptionsItemSelected(item);
    }
 
@@ -70,7 +71,7 @@ public class MovieFragment extends Fragment {
                 }
             });
 
-          return rootView;
+       return rootView;
    }
 
    /*

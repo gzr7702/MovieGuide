@@ -60,6 +60,7 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         //Log.v(LOG_TAG, mImageUrl[position].toString());
+        // TODO: cache image when we first get it.
         Picasso.with(mContext)
                 .load(mImageUrlList[position].toString())
                 .placeholder(R.drawable.placeholder)
