@@ -25,7 +25,7 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
+            android:layout_marginLeft="26dp"
             android:layout_weight="1"
             android:orientation="horizontal">
 
@@ -44,23 +44,26 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="1"
-                    android:padding="16dp">
+                    android:padding="26dp">
                     <TextView
                         android:id="@+id/detail_movie_year"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="15dp"
+                        android:layout_gravity="left"
+                        android:padding="5dp"
                         android:textSize="25sp" />
 
                     <TextView
                         android:id="@+id/detail_user_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="15dp" />
+                        android:layout_gravity="left"
+                        android:padding="5dp" />
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="15dp"
+                        android:layout_gravity="left"
+                        android:padding="5dp"
                         android:background="#2a3a7a"
                         android:textColor="#ffffff"
                         android:text="Mark as\nfavorite"/>

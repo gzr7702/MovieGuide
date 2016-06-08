@@ -88,7 +88,8 @@ public class DetailFragment extends Fragment {
             int releaseYear = calendar.get(Calendar.YEAR);
             mReleaseDate = String.valueOf(releaseYear);
 
-            mRating = cursor.getString(cursor.getColumnIndex("rating"));
+            String rating = cursor.getString(cursor.getColumnIndex("rating"));
+            mRating = rating + "/10";
             mPlotSummary = cursor.getString(cursor.getColumnIndex("plot_summary"));
             cursor.close();
             Log.v(LOG_TAG, mTitle);
