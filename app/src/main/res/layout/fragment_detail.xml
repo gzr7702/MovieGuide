@@ -9,23 +9,29 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#2a3a7a"
+        android:orientation="vertical">
+
         <TextView
             android:id="@+id/detail_title_textview"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="wrap_content"
             android:textSize="40sp"
             android:textStyle="bold"
             android:textColor="#ffffff"
-            android:padding="40dp"
+            android:layout_margin="25dp"
             android:gravity="center_vertical"
-            android:background="#2a3a7a"
             android:layout_weight="1" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="26dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="25dp"
             android:layout_weight="1"
             android:orientation="horizontal">
 
@@ -43,30 +49,33 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:padding="26dp">
+                    android:layout_marginLeft="35dp"
+                    android:layout_weight="1">
                     <TextView
                         android:id="@+id/detail_movie_year"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="left"
-                        android:padding="5dp"
+                        android:layout_margin="5dp"
+                        android:gravity="left"
                         android:textSize="25sp" />
 
                     <TextView
                         android:id="@+id/detail_user_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="left"
-                        android:padding="5dp" />
+                        android:layout_margin="5dp"
+                        android:gravity="left" />
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="left"
-                        android:padding="5dp"
+                        android:layout_margin="5dp"
+                        android:textSize="10dp"
+                        android:gravity="center"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
                         android:background="#2a3a7a"
                         android:textColor="#ffffff"
-                        android:text="Mark as\nfavorite"/>
+                        android:text="@string/button_activity_detail"/>
                 </LinearLayout>
 
             </LinearLayout>

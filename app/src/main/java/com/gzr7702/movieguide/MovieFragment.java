@@ -23,7 +23,7 @@ import com.gzr7702.movieguide.data.MovieDbHelper;
  * Fragment that displays page of movie posters
  */
 public class MovieFragment extends Fragment {
-   private final String LOG_TAG = MainActivity.class.getSimpleName();
+   private final String LOG_TAG = MovieFragment.class.getSimpleName();
    final int MAX_MOVIES = 20;
    private String[] mPosterPaths = new String[MAX_MOVIES];
 
@@ -48,7 +48,6 @@ public class MovieFragment extends Fragment {
          startActivity(new Intent(getContext(), SettingsActivity.class));
          return true;
       }
-
 
       return super.onOptionsItemSelected(item);
    }
@@ -78,6 +77,7 @@ public class MovieFragment extends Fragment {
       * Get data from MovieDB
    */
    private void updateMovieData() {
+      Log.v(LOG_TAG, "in updateMovieData MovieFrag");
       GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext());
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
       String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key),
@@ -90,7 +90,7 @@ public class MovieFragment extends Fragment {
       * Query the database to get all poster paths, then make a list of urls
      */
     private void updatePosterList() {
-        Log.v(LOG_TAG, "Started createPosterList()");
+        Log.v(LOG_TAG, "Started updatePosterList()");
         MovieDbHelper mMovieDbHelper = new MovieDbHelper(this.getContext());
         SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
 
@@ -123,9 +123,10 @@ public class MovieFragment extends Fragment {
         db.close();
     }
 
-    //TODO: save poster list
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onResume() {
+        super.onResume();
+        Log.v(LOG_TAG, "in onResume MovieFrag");
+        updateMovieData();
     }
 }

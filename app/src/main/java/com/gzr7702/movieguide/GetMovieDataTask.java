@@ -95,6 +95,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
             // Sort by rating or popularity
             final String sortOrder = params[0];
+            Log.v(LOG_TAG, sortOrder);
             final String APPID_PARAM = "api_key";
 
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
@@ -154,4 +155,5 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
         return null;
     }
+
 }
