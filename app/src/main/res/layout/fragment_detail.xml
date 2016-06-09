@@ -12,7 +12,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#2a3a7a"
+        android:background="@color/colorAccent"
         android:orientation="vertical">
 
         <TextView
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:textSize="40sp"
             android:textStyle="bold"
-            android:textColor="#ffffff"
+            android:textColor="@color/textColor"
             android:layout_margin="25dp"
             android:gravity="center_vertical"
             android:layout_weight="1" />
@@ -73,8 +73,8 @@
                         android:gravity="center"
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
-                        android:background="#2a3a7a"
-                        android:textColor="#ffffff"
+                        android:background="@color/colorAccent"
+                        android:textColor="@color/textColor"
                         android:text="@string/button_activity_detail"/>
                 </LinearLayout>
 
@@ -90,8 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="2dip"
             android:padding="165dp"
-            android:layout_gravity="center_horizontal"
-            android:background="#4c5158" />
+            android:layout_gravity="center_horizontal" />
     </LinearLayout>
 
 </ScrollView>

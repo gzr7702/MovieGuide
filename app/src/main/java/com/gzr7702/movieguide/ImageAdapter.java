@@ -25,6 +25,7 @@ public class ImageAdapter extends BaseAdapter {
         mNumberMovies = numberMovies;
         mImageUrlList = new String[mNumberMovies];
 
+        //TODO: Get posters for landscape mode
         // Take poster paths and create a list of full URLs
         final String BASE_URL = "http://image.tmdb.org/t/p/";
         // Image size: "w92", "w154", "w185", "w342", "w500", "w780", or "original"
@@ -52,6 +53,7 @@ public class ImageAdapter extends BaseAdapter {
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
+            //TODO: Get exact params for this poster size
             imageView.setLayoutParams(new GridView.LayoutParams(540, 850));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setPadding(0, 0, 0, 0);
@@ -60,7 +62,6 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         //Log.v(LOG_TAG, mImageUrl[position].toString());
-        // TODO: cache image when we first get it.
         Picasso.with(mContext)
                 .load(mImageUrlList[position].toString())
                 .placeholder(R.drawable.placeholder)

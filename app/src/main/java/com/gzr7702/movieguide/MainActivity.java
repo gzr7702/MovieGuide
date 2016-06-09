@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //TODO: GET view to refresh after changing sort order
     @Override
     protected void onResume(){
         super.onResume();

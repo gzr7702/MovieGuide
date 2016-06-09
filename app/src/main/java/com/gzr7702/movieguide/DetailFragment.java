@@ -67,8 +67,6 @@ public class DetailFragment extends Fragment {
                 null
         );
 
-        //TODO: change poster path to retreive image
-
         if( cursor != null && cursor.moveToFirst() ){
             mTitle = cursor.getString(cursor.getColumnIndex("title"));
             mPosterPath = cursor.getString(cursor.getColumnIndex("poster_path"));
