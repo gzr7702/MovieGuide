@@ -3,7 +3,6 @@ package com.gzr7702.movieguide;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.container, new MovieFragment())
                     .commit();
         }
-
     }
 
     @Override
@@ -39,12 +37,4 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-    //TODO: GET view to refresh after changing sort order
-    @Override
-    protected void onResume(){
-        super.onResume();
-        Log.v(LOG_TAG, "in onResume MainActivity");
-    }
-
 }

@@ -33,17 +33,15 @@ public class MovieFragment extends Fragment {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      // Add this line in order for this fragment to handle menu events.
       setHasOptionsMenu(true);
       updateMovieData();
    }
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
-      // Handle action bar item clicks here.
+      // Handle action bar item clicks
       int id = item.getItemId();
 
-      //noinspection SimplifiableIfStatement
       if (id == R.id.action_settings) {
          startActivity(new Intent(getContext(), SettingsActivity.class));
          return true;

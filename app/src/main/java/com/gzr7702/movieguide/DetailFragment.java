@@ -120,7 +120,7 @@ public class DetailFragment extends Fragment {
 
         // We're going to get the pic from the internet
         String BASE_URL = "http://image.tmdb.org/t/p/";
-        String imageSize = "w185";
+        String imageSize = "w342";
         String mImageUrl = BASE_URL + imageSize + mPosterPath;
 
         posterView.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -131,6 +131,11 @@ public class DetailFragment extends Fragment {
                 .into(posterView);
 
         return rootView;
+    }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.v(LOG_TAG, "in onResume");
     }
 }

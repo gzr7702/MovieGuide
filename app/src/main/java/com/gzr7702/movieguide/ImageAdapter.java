@@ -1,6 +1,7 @@
 package com.gzr7702.movieguide;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -19,6 +20,8 @@ public class ImageAdapter extends BaseAdapter {
     private Context mContext;
     private int mNumberMovies;
     private String mImageUrlList[];
+    private String mImageSize;
+    private int orientation;
 
     public ImageAdapter(Context c, String[] posterPaths, int numberMovies) {
         mContext = c;
@@ -29,9 +32,15 @@ public class ImageAdapter extends BaseAdapter {
         // Take poster paths and create a list of full URLs
         final String BASE_URL = "http://image.tmdb.org/t/p/";
         // Image size: "w92", "w154", "w185", "w342", "w500", "w780", or "original"
-        final String imageSize = "w185";
+        orientation = c.getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mImageSize = "w780";
+        } else {
+            mImageSize = "w185";
+        }
+
         for (int i = 0; i < numberMovies; i++) {
-            mImageUrlList[i] = BASE_URL + imageSize + posterPaths[i];
+            mImageUrlList[i] = BASE_URL + mImageSize + posterPaths[i];
         }
     }
 
@@ -54,7 +63,11 @@ public class ImageAdapter extends BaseAdapter {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
             //TODO: Get exact params for this poster size
-            imageView.setLayoutParams(new GridView.LayoutParams(540, 850));
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                imageView.setLayoutParams(new GridView.LayoutParams(800, 1150));
+            } else {
+                imageView.setLayoutParams(new GridView.LayoutParams(540, 850));
+            }
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setPadding(0, 0, 0, 0);
         } else {
