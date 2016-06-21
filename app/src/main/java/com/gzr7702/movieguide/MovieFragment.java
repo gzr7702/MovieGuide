@@ -24,6 +24,7 @@ import com.gzr7702.movieguide.data.MovieDbHelper;
  */
 public class MovieFragment extends Fragment {
    private final String LOG_TAG = MovieFragment.class.getSimpleName();
+   static final int SORT_MOVIE_REQUEST = 1;
    final int MAX_MOVIES = 20;
    private String[] mPosterPaths = new String[MAX_MOVIES];
 
@@ -43,12 +44,29 @@ public class MovieFragment extends Fragment {
       int id = item.getItemId();
 
       if (id == R.id.action_settings) {
-         startActivity(new Intent(getContext(), SettingsActivity.class));
+         Intent sortSettingIntent = new Intent(getContext(), SettingsActivity.class);
+         startActivityForResult(sortSettingIntent, SORT_MOVIE_REQUEST);
          return true;
       }
 
       return super.onOptionsItemSelected(item);
    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == SORT_MOVIE_REQUEST) {
+            // Make sure the request was successful
+            if (resultCode == getActivity().RESULT_OK) {
+                SharedPreferences sortPreference = PreferenceManager
+                        .getDefaultSharedPreferences(getContext());
+                String sortOrder = sortPreference.getString(
+                        getString(R.string.pref_sort_order_key),
+                        "popular");
+                updateMovieData();
+            }
+        }
+    }
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,7 +81,8 @@ public class MovieFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View v,
                                      int position, long id) {
-                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra("posterPath", mPosterPaths[position]);
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra("posterPath", mPosterPaths[position]);
                 startActivity(intent);
                 }
             });
@@ -77,9 +96,11 @@ public class MovieFragment extends Fragment {
    private void updateMovieData() {
       Log.v(LOG_TAG, "in updateMovieData MovieFrag");
       GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext());
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-      String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key),
-              getString(R.string.pref_sort_order_default));
+       SharedPreferences sortPreference = PreferenceManager
+               .getDefaultSharedPreferences(getContext());
+       String sortOrder = sortPreference.getString(
+               getString(R.string.pref_sort_order_key),
+               "popular");
       movieTask.execute(sortOrder);
       updatePosterList();
    }
@@ -91,8 +112,6 @@ public class MovieFragment extends Fragment {
         Log.v(LOG_TAG, "Started updatePosterList()");
         MovieDbHelper mMovieDbHelper = new MovieDbHelper(this.getContext());
         SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
-
-
 
         String[] projection = {
                 MovieContract.MovieEntry.COLUMN_POSTER_PATH
@@ -121,10 +140,20 @@ public class MovieFragment extends Fragment {
         db.close();
     }
 
+    /*
+    * Don't think we should do it this way...
     @Override
-    public void onResume() {
+    public void onResume(){
         super.onResume();
-        Log.v(LOG_TAG, "in onResume MovieFrag");
-        updateMovieData();
+        SharedPreferences sortPreference = PreferenceManager
+                .getDefaultSharedPreferences(getContext());
+        String sortOrder = sortPreference.getString(
+                getString(R.string.pref_sort_order_key),
+                "popular");
+        Log.v(LOG_TAG, "sortOrder:");
+        Log.v(LOG_TAG, sortOrder);
+        updateMovieData(sortOrder);
+
     }
+    */
 }

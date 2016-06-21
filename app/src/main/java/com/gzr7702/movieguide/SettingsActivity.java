@@ -1,6 +1,7 @@
 
 package com.gzr7702.movieguide;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -55,6 +56,12 @@ public class SettingsActivity extends PreferenceActivity
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
         }
+
+        Intent intent = new Intent();
+        intent.putExtra("sortValue", stringValue);
+        setResult(RESULT_OK, intent);
+        finish();
+
         return true;
     }
 
