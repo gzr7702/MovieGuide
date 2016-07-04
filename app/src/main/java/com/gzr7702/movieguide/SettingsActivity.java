@@ -55,12 +55,10 @@ public class SettingsActivity extends PreferenceActivity
             preference.setSummary(mSortOrder);
         }
 
-        /*
         Intent resultIntent = new Intent();
         resultIntent.putExtra("sortOrder", mSortOrder);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
-        */
         String message = "in onPreferenceChange(), sort order is " + mSortOrder;
         Log.v(LOG_TAG, message);
         return true;

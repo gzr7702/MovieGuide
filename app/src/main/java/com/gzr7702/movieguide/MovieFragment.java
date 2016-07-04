@@ -47,7 +47,7 @@ public class MovieFragment extends Fragment {
         if (id == R.id.action_settings) {
             Log.v(LOG_TAG, "Selected Item");
             Intent sortSettingIntent = new Intent(getContext(), SettingsActivity.class);
-            startActivity(sortSettingIntent);
+            startActivityForResult(sortSettingIntent, SORT_MOVIE_REQUEST);
             Log.v(LOG_TAG, "settings menu selected");
             return true;
         }
@@ -55,7 +55,6 @@ public class MovieFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    /*
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
@@ -67,7 +66,6 @@ public class MovieFragment extends Fragment {
             }
         }
     }
-    */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -143,6 +141,7 @@ public class MovieFragment extends Fragment {
         db.close();
     }
 
+    /*
     @Override
     public void onResume(){
         super.onResume();
@@ -150,5 +149,6 @@ public class MovieFragment extends Fragment {
         GridView gridview = (GridView) getActivity().findViewById(R.id.gridview);
         ((BaseAdapter) gridview.getAdapter()).notifyDataSetChanged();
     }
+    */
 
 }
