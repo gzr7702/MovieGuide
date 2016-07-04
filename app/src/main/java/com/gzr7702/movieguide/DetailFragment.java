@@ -133,9 +133,4 @@ public class DetailFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        Log.v(LOG_TAG, "in onResume");
-    }
 }
