@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 
 import com.gzr7702.movieguide.data.MovieContract;
@@ -25,9 +24,10 @@ import com.gzr7702.movieguide.data.MovieDbHelper;
  */
 public class MovieFragment extends Fragment {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
-    static final int SORT_MOVIE_REQUEST = 1;
+    static final String SORT_ORDER = "sortOrder";
     final int MAX_MOVIES = 20;
     private String[] mPosterPaths = new String[MAX_MOVIES];
+    private String mLatestSortOrder = null;
 
     public MovieFragment() {
     }
@@ -35,8 +35,11 @@ public class MovieFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v(LOG_TAG, "onCreate");
         setHasOptionsMenu(true);
-        updateMovieData();
+        if (savedInstanceState == null) {
+            updateMovieData();
+        }
     }
 
     @Override
@@ -45,27 +48,13 @@ public class MovieFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            Log.v(LOG_TAG, "Selected Item");
-            Intent sortSettingIntent = new Intent(getContext(), SettingsActivity.class);
-            startActivityForResult(sortSettingIntent, SORT_MOVIE_REQUEST);
-            Log.v(LOG_TAG, "settings menu selected");
+            updateMovieData();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        if (requestCode == SORT_MOVIE_REQUEST) {
-            // Make sure the request was successful
-            if (resultCode == getActivity().RESULT_OK) {
-                Log.v(LOG_TAG, "onActvityResult");
-                updateMovieData();
-            }
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -86,7 +75,6 @@ public class MovieFragment extends Fragment {
             }
         });
 
-
         return rootView;
     }
 
@@ -96,14 +84,13 @@ public class MovieFragment extends Fragment {
     private void updateMovieData() {
         Log.v(LOG_TAG, "in updateMovieData MovieFrag");
         GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext());
-        SharedPreferences sortPreference = PreferenceManager
-                .getDefaultSharedPreferences(getContext());
-        String sortOrder = sortPreference.getString(
-                getString(R.string.pref_sort_order_key),
-                "popular");
-        movieTask.execute(sortOrder);
-        updatePosterList();
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mLatestSortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
+
+        movieTask.execute(mLatestSortOrder);
+        updatePosterList();
+        
     }
 
     /*
@@ -141,14 +128,16 @@ public class MovieFragment extends Fragment {
         db.close();
     }
 
-    /*
+
     @Override
     public void onResume(){
         super.onResume();
-        updateMovieData();
-        GridView gridview = (GridView) getActivity().findViewById(R.id.gridview);
-        ((BaseAdapter) gridview.getAdapter()).notifyDataSetChanged();
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
+        if (sortOrder != mLatestSortOrder) {
+            updateMovieData();
+        }
     }
-    */
 
 }

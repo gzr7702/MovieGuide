@@ -10,9 +10,11 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+// TODO: CHANGE TO SETTINGS FRAGMENT ==========================================================
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
     private String mSortOrder;
+    public static final String KEY_PREF_SORT_ORDER = "sort";
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
 
     @Override
@@ -21,9 +23,8 @@ public class SettingsActivity extends PreferenceActivity
         // Add 'general' preferences, defined in the XML file
         addPreferencesFromResource(R.xml.pref_general);
 
-        // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
-        // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_sort_order_key)));
+        this.findPreference("sort").setOnPreferenceChangeListener(this);
     }
 
     private void bindPreferenceSummaryToValue(Preference preference) {
@@ -55,12 +56,9 @@ public class SettingsActivity extends PreferenceActivity
             preference.setSummary(mSortOrder);
         }
 
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("sortOrder", mSortOrder);
-        setResult(Activity.RESULT_OK, resultIntent);
-        finish();
         String message = "in onPreferenceChange(), sort order is " + mSortOrder;
         Log.v(LOG_TAG, message);
+
         return true;
     }
 
