@@ -4,7 +4,6 @@ package com.gzr7702.movieguide;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -164,11 +163,11 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
-        Log.v(LOG_TAG, "In onPostExecute");
         // Get context of the application, the root view, then the GridView
         View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
         ((BaseAdapter) gridView.getAdapter()).notifyDataSetChanged();
+        Log.v(LOG_TAG, "In onPostExecute");
     }
 
 }
