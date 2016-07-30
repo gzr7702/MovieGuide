@@ -53,6 +53,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
         MovieDbHelper mMovieDbHelper = new MovieDbHelper(mContext);
         SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
+        db.delete(MovieEntry.TABLE_NAME, null, null);
 
         try {
             JSONObject pages = new JSONObject(jsonStr);
