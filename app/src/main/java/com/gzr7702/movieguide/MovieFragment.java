@@ -2,8 +2,6 @@ package com.gzr7702.movieguide;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -16,10 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-
-import com.gzr7702.movieguide.data.MovieContract;
-import com.gzr7702.movieguide.data.MovieDbHelper;
-
 
 /**
  * Fragment that displays page of movie posters
@@ -57,7 +51,6 @@ public class MovieFragment extends Fragment {
 
         if (id == R.id.action_settings) {
             startActivity(new Intent(getActivity(), SettingsActivity.class));
-            updateMovieData();
             return true;
         }
 
@@ -68,6 +61,7 @@ public class MovieFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.v(LOG_TAG, "onCreateView()");
 
         final ImageAdapter mImageAdapter = new ImageAdapter(getActivity(), mPosterPaths, MAX_MOVIES);
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
@@ -95,55 +89,27 @@ public class MovieFragment extends Fragment {
         GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext());
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-        mLatestSortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
+        String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
+        mLatestSortOrder = sortOrder;
 
-        movieTask.execute(mLatestSortOrder);
-        updatePosterList();
-        
-    }
-
-    /*
-      * Query the database to get all poster paths, then make a list of urls
-     */
-    private void updatePosterList() {
-        Log.v(LOG_TAG, "Started updatePosterList()");
-        MovieDbHelper mMovieDbHelper = new MovieDbHelper(this.getContext());
-        SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
-
-        String[] projection = {
-                MovieContract.MovieEntry.COLUMN_POSTER_PATH
-        };
-
-        Cursor c = db.query(
-                MovieContract.MovieEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        // Loop through 20 movies and build an
-        // array of urls
-        if (c != null && c.moveToFirst()) {
-            c.moveToFirst();
-            for (int i = 0; i < MAX_MOVIES; i++) {
-                mPosterPaths[i] = c.getString(0);
-                c.moveToNext();
-            }
-        }
-
-        db.close();
+        movieTask.execute(sortOrder);
+        mPosterPaths = movieTask.GetPosterPaths();
     }
 
 
     @Override
     public void onResume(){
         super.onResume();
+        Log.v(LOG_TAG, "onResume() has been called");
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
+        String message1 = "Sort Order " + sortOrder;
+        String message2 = "Latest Sort Order " + mLatestSortOrder;
+        Log.v(LOG_TAG, message1);
+        Log.v(LOG_TAG, message2);
+
         if (sortOrder != mLatestSortOrder) {
             updateMovieData();
         }

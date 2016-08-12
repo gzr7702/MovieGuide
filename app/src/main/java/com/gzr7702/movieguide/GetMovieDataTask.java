@@ -4,6 +4,7 @@ package com.gzr7702.movieguide;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 
+import com.gzr7702.movieguide.data.MovieContract;
 import com.gzr7702.movieguide.data.MovieContract.MovieEntry;
 import com.gzr7702.movieguide.data.MovieDbHelper;
 
@@ -23,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -30,11 +33,18 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = GetMovieDataTask.class.getSimpleName();
     public Context mContext;
+    final int MAX_MOVIES = 20;
+    private String[] mPosterPaths = new String[MAX_MOVIES];
 
     // We use a constructor so we can pass in the context for our DB helper.
     public GetMovieDataTask(Context context) {
         mContext = context;
     }
+
+    public String[] GetPosterPaths() {
+        return mPosterPaths;
+    }
+
     /*
       * Parse the JSON data for what we need and stash it in the database
      */
@@ -53,6 +63,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
 
         MovieDbHelper mMovieDbHelper = new MovieDbHelper(mContext);
         SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
+        Log.v(LOG_TAG, "Deleting table");
         db.delete(MovieEntry.TABLE_NAME, null, null);
 
         try {
@@ -88,6 +99,47 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
         }
     }
 
+    /*
+  * Query the database to get all poster paths, then make a list of urls
+ */
+    private void updatePosterList() {
+        Log.v(LOG_TAG, "Started updatePosterList()");
+        MovieDbHelper mMovieDbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
+
+        try {
+            String[] projection = {
+                    MovieEntry.COLUMN_POSTER_PATH
+            };
+
+            Cursor c = db.query(
+                    MovieEntry.TABLE_NAME,
+                    projection,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            // Loop through 20 movies and build an
+            // array of urls
+            if (c != null && c.moveToFirst()) {
+                c.moveToFirst();
+                for (int i = 0; i < MAX_MOVIES; i++) {
+                    mPosterPaths[i] = c.getString(0);
+                    c.moveToNext();
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+        } finally {
+            db.close();
+        }
+
+    }
+
     @Override
     protected Void doInBackground(String... params) {
 
@@ -109,8 +161,6 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
                     .build();
 
             URL url = new URL(builtUri.toString());
-
-            //Log.v(LOG_TAG, url.toString());
 
             // Create the request to movieDB, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -138,8 +188,9 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
             }
 
             String jsonStr = buffer.toString();
-            Log.v(LOG_TAG, jsonStr);
+            //Log.v(LOG_TAG, jsonStr);
             getDataFromJson(jsonStr);
+            updatePosterList();
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
         } catch (JSONException e) {
@@ -165,10 +216,12 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
         // Get context of the application, the root view, then the GridView
+        /*
         View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
+        Log.v(LOG_TAG, "calling notifyDataSetChanged()");
         ((BaseAdapter) gridView.getAdapter()).notifyDataSetChanged();
-        Log.v(LOG_TAG, "In onPostExecute");
+        */
     }
 
 }

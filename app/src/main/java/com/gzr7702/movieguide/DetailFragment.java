@@ -16,6 +16,7 @@ import com.gzr7702.movieguide.data.MovieContract;
 import com.gzr7702.movieguide.data.MovieDbHelper;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,60 +44,62 @@ public class DetailFragment extends Fragment {
         MovieDbHelper mMovieDbHelper = new MovieDbHelper(this.getContext());
         SQLiteDatabase db = mMovieDbHelper.getReadableDatabase();
 
-        String[] projection = {
-                MovieContract.MovieEntry.COLUMN_POSTER_PATH,
-                MovieContract.MovieEntry.COLUMN_TITLE,
-                MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-                MovieContract.MovieEntry.COLUMN_RATING,
-                MovieContract.MovieEntry.COLUMN_PLOT_SUMMARY
-        };
+        try {
 
-        String selection = MovieContract.MovieEntry.COLUMN_POSTER_PATH + "=?";
-        String[] selectionArgs = {
-                mPosterPath
-        };
+            String[] projection = {
+                    MovieContract.MovieEntry.COLUMN_POSTER_PATH,
+                    MovieContract.MovieEntry.COLUMN_TITLE,
+                    MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
+                    MovieContract.MovieEntry.COLUMN_RATING,
+                    MovieContract.MovieEntry.COLUMN_PLOT_SUMMARY
+            };
+
+            String selection = MovieContract.MovieEntry.COLUMN_POSTER_PATH + "=?";
+            String[] selectionArgs = {
+                    mPosterPath
+            };
 
 
-        Cursor cursor = db.query(
-                MovieContract.MovieEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
+            Cursor cursor = db.query(
+                    MovieContract.MovieEntry.TABLE_NAME,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
+            );
 
-        if( cursor != null && cursor.moveToFirst() ){
-            mTitle = cursor.getString(cursor.getColumnIndex("title"));
-            mPosterPath = cursor.getString(cursor.getColumnIndex("poster_path"));
+            if (cursor != null && cursor.moveToFirst()) {
+                mTitle = cursor.getString(cursor.getColumnIndex("title"));
+                mPosterPath = cursor.getString(cursor.getColumnIndex("poster_path"));
 
-            // Reformat date from yyyy-mm-dd to year only
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            String rawDate = cursor.getString(cursor.getColumnIndex("release_date"));
-            Date date = new Date();
-            try{
-                date = format.parse(rawDate);
-            } catch (Exception e) {
-                e.printStackTrace();
+                // Reformat date from yyyy-mm-dd to year only
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                String rawDate = cursor.getString(cursor.getColumnIndex("release_date"));
+                Date date = new Date();
+                try {
+                    date = format.parse(rawDate);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                int releaseYear = calendar.get(Calendar.YEAR);
+                mReleaseDate = String.valueOf(releaseYear);
+
+                String rating = cursor.getString(cursor.getColumnIndex("rating"));
+                mRating = rating + "/10";
+                mPlotSummary = cursor.getString(cursor.getColumnIndex("plot_summary"));
+                cursor.close();
+            } else {
+                Log.v(LOG_TAG, "query failed");
             }
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            int releaseYear = calendar.get(Calendar.YEAR);
-            mReleaseDate = String.valueOf(releaseYear);
-
-            String rating = cursor.getString(cursor.getColumnIndex("rating"));
-            mRating = rating + "/10";
-            mPlotSummary = cursor.getString(cursor.getColumnIndex("plot_summary"));
-            cursor.close();
-            Log.v(LOG_TAG, mTitle);
-            Log.v(LOG_TAG, mPosterPath);
-            Log.v(LOG_TAG, mReleaseDate);
-            Log.v(LOG_TAG, mRating);
-            Log.v(LOG_TAG, mPlotSummary);
-        } else {
-            Log.v(LOG_TAG, "query failed");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+        } finally {
+            db.close();
         }
 
     }
