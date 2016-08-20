@@ -2,6 +2,7 @@ package com.gzr7702.movieguide;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -41,6 +42,7 @@ public class ImageAdapter extends BaseAdapter {
         for (int i = 0; i < numberMovies; i++) {
             mImageUrlList[i] = BASE_URL + mImageSize + posterPaths[i];
         }
+
     }
 
     public int getCount() {
@@ -76,7 +78,7 @@ public class ImageAdapter extends BaseAdapter {
         //Log.v(LOG_TAG, mImageUrl[position].toString());
         Picasso.with(mContext)
                 .load(mImageUrlList[position].toString())
-                //.placeholder(R.drawable.placeholder)
+                .placeholder(R.drawable.placeholder)
                 .into(imageView);
         return imageView;
     }

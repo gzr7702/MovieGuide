@@ -190,7 +190,6 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
             String jsonStr = buffer.toString();
             //Log.v(LOG_TAG, jsonStr);
             getDataFromJson(jsonStr);
-            updatePosterList();
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
         } catch (JSONException e) {
@@ -215,13 +214,13 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
+        updatePosterList();
+        //TODO: alert MovieFragment that we have all the data
         // Get context of the application, the root view, then the GridView
-        /*
         View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
         Log.v(LOG_TAG, "calling notifyDataSetChanged()");
         ((BaseAdapter) gridView.getAdapter()).notifyDataSetChanged();
-        */
     }
 
 }
