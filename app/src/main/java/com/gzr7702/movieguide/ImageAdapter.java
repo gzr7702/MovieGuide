@@ -78,7 +78,7 @@ public class ImageAdapter extends BaseAdapter {
         //Log.v(LOG_TAG, mImageUrl[position].toString());
         Picasso.with(mContext)
                 .load(mImageUrlList[position].toString())
-                .placeholder(R.drawable.placeholder)
+                //.placeholder(R.drawable.placeholder)
                 .into(imageView);
         return imageView;
     }
