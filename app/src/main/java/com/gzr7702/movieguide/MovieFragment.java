@@ -27,6 +27,9 @@ public class MovieFragment extends Fragment {
     final int MAX_MOVIES = 20;
     private String[] mPosterPaths = new String[MAX_MOVIES];
     private String mLatestSortOrder = null;
+    ImageAdapter mImageAdapter;
+    GridView mGridview; // Move this back =========================================
+
 
     public MovieFragment() {
     }
@@ -39,6 +42,29 @@ public class MovieFragment extends Fragment {
         if (savedInstanceState == null) {
             updateMovieData();
         }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.v(LOG_TAG, "onCreateView()");
+
+        mImageAdapter = new ImageAdapter(getActivity(), mPosterPaths, MAX_MOVIES);
+        View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
+        mGridview = (GridView) rootView.findViewById(R.id.gridview);
+        mGridview.setAdapter(mImageAdapter);
+
+        mGridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View v,
+                                    int position, long id) {
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra("posterPath", mPosterPaths[position]);
+                startActivity(intent);
+            }
+        });
+
+        return rootView;
     }
 
     @Override
@@ -60,28 +86,23 @@ public class MovieFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        Log.v(LOG_TAG, "onCreateView()");
+    public void onResume(){
+        super.onResume();
+        Log.v(LOG_TAG, "onResume() has been called");
 
-        final ImageAdapter mImageAdapter = new ImageAdapter(getActivity(), mPosterPaths, MAX_MOVIES);
-        View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
-        GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
-        gridview.setAdapter(mImageAdapter);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View v,
-                                    int position, long id) {
-                Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("posterPath", mPosterPaths[position]);
-                startActivity(intent);
-            }
-        });
+        String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
+        String message1 = "Sort Order " + sortOrder;
+        String message2 = "Latest Sort Order " + mLatestSortOrder;
+        Log.v(LOG_TAG, message1);
+        Log.v(LOG_TAG, message2);
 
-        return rootView;
+        if (sortOrder != mLatestSortOrder) {
+            updateMovieData();
+            // Need this? ===================================================
+        }
     }
 
     /*
@@ -104,25 +125,8 @@ public class MovieFragment extends Fragment {
         }
         // ======================================================
         mPosterPaths = movieTask.GetPosterPaths();
-    }
-
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        Log.v(LOG_TAG, "onResume() has been called");
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-
-        String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
-        String message1 = "Sort Order " + sortOrder;
-        String message2 = "Latest Sort Order " + mLatestSortOrder;
-        Log.v(LOG_TAG, message1);
-        Log.v(LOG_TAG, message2);
-
-        if (sortOrder != mLatestSortOrder) {
-            updateMovieData();
+        if (mImageAdapter != null) {
+            mImageAdapter.notifyDataSetChanged();
         }
     }
-
 }
