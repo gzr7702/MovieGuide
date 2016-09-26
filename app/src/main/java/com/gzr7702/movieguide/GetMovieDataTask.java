@@ -35,14 +35,16 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
     public Context mContext;
     final int MAX_MOVIES = 20;
     private String[] mPosterPaths = new String[MAX_MOVIES];
+    AsyncCallback mAsyncCallback;
 
     // We use a constructor so we can pass in the context for our DB helper.
-    public GetMovieDataTask(Context context) {
+    public GetMovieDataTask(Context context, AsyncCallback asyncCallback) {
         mContext = context;
+        mAsyncCallback = asyncCallback;
     }
 
-    public String[] GetPosterPaths() {
-        return mPosterPaths;
+    public interface AsyncCallback {
+        void updateData(String[] mPosterPaths);
     }
 
     @Override
@@ -121,15 +123,8 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Void> {
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
-        //TODO: alert MovieFragment that we have all the data
-        // Get context of the application, the root view, then the GridView
-        /*
-        View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
-        Log.v(LOG_TAG, "calling notifyDataSetChanged()");
-        ((BaseAdapter) gridView.getAdapter()).notifyDataSetChanged();
-        */
-        this.updatePosterList();
+        Log.v(LOG_TAG, "onPostExectute()");
+        mAsyncCallback.updateData(mPosterPaths);
     }
 
     /*

@@ -2,10 +2,8 @@ package com.gzr7702.movieguide;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 
 public class MainActivity extends AppCompatActivity {
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

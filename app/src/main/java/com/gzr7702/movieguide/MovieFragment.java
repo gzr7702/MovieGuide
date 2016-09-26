@@ -1,11 +1,10 @@
 package com.gzr7702.movieguide;
 
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.util.TimeUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,19 +15,18 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
 
 /**
  * Fragment that displays page of movie posters
  */
-public class MovieFragment extends Fragment {
+public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCallback {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
     static final String SORT_ORDER = "sortOrder";
     final int MAX_MOVIES = 20;
     private String[] mPosterPaths = new String[MAX_MOVIES];
     private String mLatestSortOrder = null;
     ImageAdapter mImageAdapter;
-    GridView mGridview; // Move this back =========================================
 
 
     public MovieFragment() {
@@ -38,10 +36,11 @@ public class MovieFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(LOG_TAG, "onCreate");
-        setHasOptionsMenu(true);
+
         if (savedInstanceState == null) {
             updateMovieData();
         }
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -49,12 +48,14 @@ public class MovieFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.v(LOG_TAG, "onCreateView()");
 
+        // TODO: Needs to move becuase posterpaths are not populated yet =====================
+        Log.v(LOG_TAG, "paths onCreateView: " + Arrays.toString(mPosterPaths));
         mImageAdapter = new ImageAdapter(getActivity(), mPosterPaths, MAX_MOVIES);
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
-        mGridview = (GridView) rootView.findViewById(R.id.gridview);
-        mGridview.setAdapter(mImageAdapter);
+        GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
+        gridview.setAdapter(mImageAdapter);
 
-        mGridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View v,
                                     int position, long id) {
@@ -101,8 +102,18 @@ public class MovieFragment extends Fragment {
 
         if (sortOrder != mLatestSortOrder) {
             updateMovieData();
-            // Need this? ===================================================
         }
+    }
+
+    /*
+        * Notify image adapter
+     */
+    @Override
+    public void updateData(String[] mPosterPaths) {
+        this.mPosterPaths = mPosterPaths;
+        Log.v(LOG_TAG, "paths updateData: " + Arrays.toString(mPosterPaths));
+        mImageAdapter.notifyDataSetChanged();
+        Log.v(LOG_TAG, "updateData()");
     }
 
     /*
@@ -110,23 +121,17 @@ public class MovieFragment extends Fragment {
     */
     private void updateMovieData() {
         Log.v(LOG_TAG, "in updateMovieData MovieFrag");
-        GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext());
+        GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext(), this);
+
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
         mLatestSortOrder = sortOrder;
 
         movieTask.execute(sortOrder);
-        // Workaround for race condition ========================
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        }
-        // ======================================================
-        mPosterPaths = movieTask.GetPosterPaths();
-        if (mImageAdapter != null) {
-            mImageAdapter.notifyDataSetChanged();
-        }
+        //mPosterPaths = movieTask.GetPosterPaths();
+        //if (mImageAdapter != null) {
+        //    mImageAdapter.notifyDataSetChanged();
+        //}
     }
 }
