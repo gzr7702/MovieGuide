@@ -15,7 +15,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Fragment that displays page of movie posters
@@ -24,9 +27,10 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
     static final String SORT_ORDER = "sortOrder";
     final int MAX_MOVIES = 20;
-    private String[] mPosterPaths = new String[MAX_MOVIES];
+    private HashMap<String, String> mPosterData;
     private String mLatestSortOrder = null;
     ImageAdapter mImageAdapter;
+    GridView mGridview;
 
 
     public MovieFragment() {
@@ -48,19 +52,16 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
                              Bundle savedInstanceState) {
         Log.v(LOG_TAG, "onCreateView()");
 
-        // TODO: Needs to move becuase posterpaths are not populated yet =====================
-        Log.v(LOG_TAG, "paths onCreateView: " + Arrays.toString(mPosterPaths));
-        mImageAdapter = new ImageAdapter(getActivity(), mPosterPaths, MAX_MOVIES);
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
-        GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
-        gridview.setAdapter(mImageAdapter);
+        mGridview = (GridView) rootView.findViewById(R.id.gridview);
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View v,
                                     int position, long id) {
                 Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("posterPath", mPosterPaths[position]);
+                        //TODO: change this to accept movie titles, for now it's one title
+                        .putExtra("posterPath", "Piper");
                 startActivity(intent);
             }
         });
@@ -109,9 +110,24 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         * Notify image adapter
      */
     @Override
-    public void updateData(String[] mPosterPaths) {
-        this.mPosterPaths = mPosterPaths;
-        Log.v(LOG_TAG, "paths updateData: " + Arrays.toString(mPosterPaths));
+    public void updateData(HashMap<String, String> posterData) {
+        this.mPosterData = posterData;
+        String[] posterPaths = new String[posterData.size()];
+        Set entries = posterData.entrySet();
+        Iterator entriesIterator = entries.iterator();
+
+        int i = 0;
+        while(entriesIterator.hasNext()){
+            Map.Entry mapping = (Map.Entry) entriesIterator.next();
+            posterPaths[i] = mapping.getValue().toString();
+            i++;
+        }
+
+        Log.v(LOG_TAG, posterPaths.toString());
+
+        mImageAdapter = new ImageAdapter(getActivity(), posterPaths, MAX_MOVIES);
+        mGridview.setAdapter(mImageAdapter);
+        // Do we need this if it's being initialized?
         mImageAdapter.notifyDataSetChanged();
         Log.v(LOG_TAG, "updateData()");
     }
@@ -128,7 +144,8 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
         mLatestSortOrder = sortOrder;
 
-        movieTask.execute(sortOrder);
+        // TODO: split getmoviedatatask into 2 separate tasks:
+        movieTask.execute(sortOrder, "posterData");
         //mPosterPaths = movieTask.GetPosterPaths();
         //if (mImageAdapter != null) {
         //    mImageAdapter.notifyDataSetChanged();
