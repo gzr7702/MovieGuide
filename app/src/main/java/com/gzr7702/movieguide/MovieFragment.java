@@ -15,10 +15,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Fragment that displays page of movie posters
@@ -26,12 +24,11 @@ import java.util.Set;
 public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCallback {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
     static final String SORT_ORDER = "sortOrder";
-    final int MAX_MOVIES = 20;
-    private HashMap<String, String> mPosterData;
     private String mLatestSortOrder = null;
-    ImageAdapter mImageAdapter;
-    GridView mGridview;
+    private ImageAdapter mImageAdapter;
+    private GridView mGridview;
 
+    private ArrayList<Movie> mMovieList;
 
     public MovieFragment() {
     }
@@ -41,10 +38,18 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         super.onCreate(savedInstanceState);
         Log.v(LOG_TAG, "onCreate");
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
             updateMovieData();
+        } else {
+            mMovieList = savedInstanceState.getParcelableArrayList("movies");
         }
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("movies", mMovieList);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -60,8 +65,8 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
             public void onItemClick(AdapterView<?> adapterView, View v,
                                     int position, long id) {
                 Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        //TODO: change this to accept movie titles, for now it's one title
-                        .putExtra("posterPath", "Piper");
+                        //TODO: change this to pass serialized movie
+                        .putExtra("movie", mMovieList.get(position));
                 startActivity(intent);
             }
         });
@@ -110,22 +115,19 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         * Notify image adapter
      */
     @Override
-    public void updateData(HashMap<String, String> posterData) {
-        this.mPosterData = posterData;
-        String[] posterPaths = new String[posterData.size()];
-        Set entries = posterData.entrySet();
-        Iterator entriesIterator = entries.iterator();
+    public void updateData(Movie[] movies) {
+        mMovieList = new ArrayList<Movie>(Arrays.asList(movies));
+        int max_movies = mMovieList.size();
 
-        int i = 0;
-        while(entriesIterator.hasNext()){
-            Map.Entry mapping = (Map.Entry) entriesIterator.next();
-            posterPaths[i] = mapping.getValue().toString();
-            i++;
+
+        String[] posterPaths = new String[max_movies];
+        for(int i = 0; i < max_movies; i++) {
+            posterPaths[i] = mMovieList.get(i).getPosterPath();
         }
 
         Log.v(LOG_TAG, posterPaths.toString());
 
-        mImageAdapter = new ImageAdapter(getActivity(), posterPaths, MAX_MOVIES);
+        mImageAdapter = new ImageAdapter(getActivity(), posterPaths, max_movies);
         mGridview.setAdapter(mImageAdapter);
         // Do we need this if it's being initialized?
         mImageAdapter.notifyDataSetChanged();
@@ -139,16 +141,10 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         Log.v(LOG_TAG, "in updateMovieData MovieFrag");
         GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext(), this);
 
-
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
         mLatestSortOrder = sortOrder;
 
-        // TODO: split getmoviedatatask into 2 separate tasks:
-        movieTask.execute(sortOrder, "posterData");
-        //mPosterPaths = movieTask.GetPosterPaths();
-        //if (mImageAdapter != null) {
-        //    mImageAdapter.notifyDataSetChanged();
-        //}
+        movieTask.execute(sortOrder);
     }
 }

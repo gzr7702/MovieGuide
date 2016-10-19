@@ -26,7 +26,6 @@ public class ImageAdapter extends BaseAdapter {
     private String mImageSize;
     private int orientation;
 
-    // TODO: Need to redo this because posterPaths are null during init, maybe get them from db????!!!!!1
     public ImageAdapter(Context c, String[] posterPaths, int numberMovies) {
         mContext = c;
         mNumberMovies = numberMovies;
@@ -78,7 +77,6 @@ public class ImageAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        // TODO: Get posterpaths from DB here?==================================================
         Log.v(LOG_TAG, mImageUrlList[position].toString());
         Picasso.with(mContext)
                 .load(mImageUrlList[position].toString())

@@ -2,7 +2,6 @@
 package com.gzr7702.movieguide;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -17,16 +16,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.StringTokenizer;
 
-public class GetMovieDataTask extends AsyncTask<String, Void, HashMap> {
+public class GetMovieDataTask extends AsyncTask<String, Void, Movie[]> {
 
     private final String LOG_TAG = GetMovieDataTask.class.getSimpleName();
     public Context mContext;
-    private HashMap<String, String> mPosterData = new HashMap<String, String>();
+    //TODO: this is in 2 places, move it
     final int MAX_MOVIES = 20;
     AsyncCallback mAsyncCallback;
+    //Movie[] mMovies = new Movie[MAX_MOVIES];
 
     // We use a constructor so we can pass in the context for our DB helper.
     public GetMovieDataTask(Context context, AsyncCallback asyncCallback) {
@@ -35,15 +33,14 @@ public class GetMovieDataTask extends AsyncTask<String, Void, HashMap> {
     }
 
     public interface AsyncCallback {
-        void updateData(HashMap<String, String> posterData);
+        void updateData(Movie[] movies);
     }
 
     @Override
-    protected HashMap doInBackground(String... params) {
+    protected Movie[] doInBackground(String... params) {
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-        final String dataType = params[1];
 
         try {
             // Construct the URL
@@ -89,11 +86,7 @@ public class GetMovieDataTask extends AsyncTask<String, Void, HashMap> {
 
             String jsonStr = buffer.toString();
 
-            if (dataType.equals("posterData")) {
-                getPosterData(jsonStr);
-            } else {
-                return getMovieData(jsonStr);
-            }
+            return parseMovieData(jsonStr);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
         } catch (JSONException e) {
@@ -111,27 +104,24 @@ public class GetMovieDataTask extends AsyncTask<String, Void, HashMap> {
                 }
             }
         }
-
         return null;
     }
 
     @Override
-    protected void onPostExecute(HashMap result) {
+    protected void onPostExecute(Movie[] result) {
         super.onPostExecute(result);
         Log.v(LOG_TAG, "onPostExectute()");
-        mAsyncCallback.updateData(mPosterData);
+        mAsyncCallback.updateData(result);
     }
 
     /*
       * Parse the JSON data for what we need and stash it in the database
      */
-    // TODO: refactor to get only one movies info for detail frag
-    private HashMap getMovieData(String jsonStr)
+    private Movie[] parseMovieData(String jsonStr)
             throws JSONException {
 
+        Movie[] movies = new Movie[MAX_MOVIES];
         // Movie objects (keys)
-        HashMap movieData = new HashMap<String, String>();
-
         final String RESULTS = "results";
 
         final String TITLE = "original_title";
@@ -143,59 +133,28 @@ public class GetMovieDataTask extends AsyncTask<String, Void, HashMap> {
 
         try {
             JSONObject pages = new JSONObject(jsonStr);
-            JSONArray movieArray = pages.getJSONArray(RESULTS);
+            JSONArray jsonMovieArray = pages.getJSONArray(RESULTS);
 
-            /*
-            JSONObject movie = movieArray.getJSONObject(i);
 
-            movieData.put(TITLE, movie.getString(TITLE));
-            movieData.put(POSTER_PATH, movie.getString(POSTER_PATH));
-            movieData.put(RELEASE_DATE, movie.getString(RELEASE_DATE));
-            movieData.put(RATING, movie.getString(RATING));
-            movieData.put(PLOT_SUMMARY, movie.getString(PLOT_SUMMARY));
+            for (int i = 0; i < jsonMovieArray.length(); i++) {
+                JSONObject movie = jsonMovieArray.getJSONObject(i);
 
-            Log.v(LOG_TAG, "Retrieved and stashed movie data.");
-            */
+                String title = movie.getString(TITLE);
+
+                String posterPath = movie.getString(POSTER_PATH);
+                String releaseDate = movie.getString(RELEASE_DATE);
+                Double rating = movie.getDouble(RATING);
+                String plot = movie.getString(PLOT_SUMMARY);
+
+                movies[i] = new Movie(title, posterPath, releaseDate, rating, plot);
+
+                Log.v(LOG_TAG, "Retrieved movie data, created Movie object for " + title);
+            }
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
-
-        return movieData;
+        return movies;
     }
-
-    /*
-  * Query the database to get all poster paths, then make a list of urls
- */
-    //TODO: refactor to grab only poster paths
-    private void getPosterData(String jsonStr)
-        throws JSONException {
-
-            // Keys for List of results
-            final String RESULTS = "results";
-
-            // Movie objects (keys)
-            final String POSTER_PATH = "poster_path";
-            final String TITLE = "title";
-
-
-            try {
-                JSONObject pages = new JSONObject(jsonStr);
-                JSONArray movieArray = pages.getJSONArray(RESULTS);
-
-                for (int i = 0; i < movieArray.length(); i++) {
-                    JSONObject movie = movieArray.getJSONObject(i);
-
-                    String title = movie.getString(TITLE);
-                    String posterPath = movie.getString(POSTER_PATH);
-                    mPosterData.put(title, posterPath);
-                    Log.v(LOG_TAG, title + posterPath);
-                }
-
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
-            }
-        }
 }

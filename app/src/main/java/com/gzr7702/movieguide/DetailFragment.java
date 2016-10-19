@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.renderscript.Double2;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,19 +15,10 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 
 public class DetailFragment extends Fragment {
     String LOG_TAG = DetailFragment.class.getSimpleName();
-
-    private String mPosterPath;
-    private String mTitle;
-    private String mReleaseDate;
-    private String mRating;
-    private String mPlotSummary;
+    Movie mMovie;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -36,9 +28,7 @@ public class DetailFragment extends Fragment {
     public void onCreate(Bundle onSavedInstanceState) {
         super.onCreate(onSavedInstanceState);
         Intent intent = getActivity().getIntent();
-        mPosterPath = intent.getStringExtra("posterPath");
-
-
+        mMovie = intent.getExtras().getParcelable("movie");
     }
 
     @Override
@@ -53,15 +43,16 @@ public class DetailFragment extends Fragment {
         TextView ratingView = (TextView) rootView.findViewById(R.id.detail_user_rating);
         TextView summaryView = (TextView) rootView.findViewById(R.id.detail_movie_blurb);
 
-        titleView.setText(mTitle);
-        releaseDateView.setText(mReleaseDate);
-        ratingView.setText(mRating);
-        summaryView.setText(mPlotSummary);
+        titleView.setText(mMovie.getTitle());
+        releaseDateView.setText(mMovie.getReleaseDate());
+        Double rating = mMovie.getRating();
+        ratingView.setText(rating.toString());
+        summaryView.setText(mMovie.getSummary());
 
         // We're going to get the pic from the internet
         String BASE_URL = "http://image.tmdb.org/t/p/";
         String imageSize = "w342";
-        String mImageUrl = BASE_URL + imageSize + mPosterPath;
+        String mImageUrl = BASE_URL + imageSize + mMovie.getPosterPath();
 
         posterView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         posterView.setPadding(0, 0, 0, 0);
