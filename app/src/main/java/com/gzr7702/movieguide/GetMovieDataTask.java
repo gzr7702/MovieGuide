@@ -2,6 +2,8 @@
 package com.gzr7702.movieguide;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -21,10 +23,8 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Movie[]> {
 
     private final String LOG_TAG = GetMovieDataTask.class.getSimpleName();
     public Context mContext;
-    //TODO: this is in 2 places, move it
     final int MAX_MOVIES = 20;
     AsyncCallback mAsyncCallback;
-    //Movie[] mMovies = new Movie[MAX_MOVIES];
 
     // We use a constructor so we can pass in the context for our DB helper.
     public GetMovieDataTask(Context context, AsyncCallback asyncCallback) {

@@ -10,7 +10,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-// TODO: CHANGE TO SETTINGS FRAGMENT ==========================================================
+// TODO: CHANGE TO SETTINGS FRAGMENT
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
     private String mSortOrder;

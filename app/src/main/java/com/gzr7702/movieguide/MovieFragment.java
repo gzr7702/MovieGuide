@@ -1,5 +1,8 @@
 package com.gzr7702.movieguide;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +69,6 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
             public void onItemClick(AdapterView<?> adapterView, View v,
                                     int position, long id) {
                 Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        //TODO: change this to pass serialized movie
                         .putExtra("movie", mMovieList.get(position));
                 startActivity(intent);
             }
@@ -145,6 +148,17 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
         mLatestSortOrder = sortOrder;
 
-        movieTask.execute(sortOrder);
+        if (isOnline()) {
+            movieTask.execute(sortOrder);
+        } else {
+            Toast.makeText(getContext(), "We ain't online!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnected();
     }
 }

@@ -1,12 +1,8 @@
 package com.gzr7702.movieguide;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.renderscript.Double2;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +13,6 @@ import com.squareup.picasso.Picasso;
 
 
 public class DetailFragment extends Fragment {
-    String LOG_TAG = DetailFragment.class.getSimpleName();
     Movie mMovie;
 
     public DetailFragment() {

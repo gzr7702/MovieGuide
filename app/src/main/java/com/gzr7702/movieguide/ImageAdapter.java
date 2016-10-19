@@ -2,7 +2,6 @@ package com.gzr7702.movieguide;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -10,8 +9,6 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
-
-import java.util.Arrays;
 
 /**
  * Adapter to sync images with gridview
@@ -77,7 +74,6 @@ public class ImageAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        Log.v(LOG_TAG, mImageUrlList[position].toString());
         Picasso.with(mContext)
                 .load(mImageUrlList[position].toString())
                 //.placeholder(R.drawable.placeholder)
