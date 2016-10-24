@@ -2,6 +2,7 @@ package com.gzr7702.movieguide;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,15 +19,16 @@ public class ImageAdapter extends BaseAdapter {
     private final String LOG_TAG = ImageAdapter.class.getSimpleName();
 
     private Context mContext;
-    private int mNumberMovies;
     private String mImageUrlList[];
     private String mImageSize;
     private int orientation;
+    private LayoutInflater mInflater;
 
-    public ImageAdapter(Context c, String[] posterPaths, int numberMovies) {
+    public ImageAdapter(Context c, String[] posterPaths) {
         mContext = c;
-        mNumberMovies = numberMovies;
-        mImageUrlList = new String[mNumberMovies];
+        int numberMovies = posterPaths.length;
+        mImageUrlList = new String[numberMovies];
+        mInflater = LayoutInflater.from(mContext);
 
         // Take poster paths and create a list of full URLs
         final String BASE_URL = "http://image.tmdb.org/t/p/";
@@ -62,9 +64,9 @@ public class ImageAdapter extends BaseAdapter {
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
-            //TODO: Get exact params for this poster size
+
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                imageView.setLayoutParams(new GridView.LayoutParams(1000, 1300));
+                imageView.setLayoutParams(new GridView.LayoutParams(900, 1200));
             } else {
                 imageView.setLayoutParams(new GridView.LayoutParams(540, 850));
             }
@@ -76,7 +78,7 @@ public class ImageAdapter extends BaseAdapter {
 
         Picasso.with(mContext)
                 .load(mImageUrlList[position].toString())
-                //.placeholder(R.drawable.placeholder)
+                .fit()
                 .into(imageView);
         return imageView;
     }

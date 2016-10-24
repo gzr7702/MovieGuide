@@ -130,7 +130,7 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
 
         Log.v(LOG_TAG, posterPaths.toString());
 
-        mImageAdapter = new ImageAdapter(getActivity(), posterPaths, max_movies);
+        mImageAdapter = new ImageAdapter(getActivity(), posterPaths);
         mGridview.setAdapter(mImageAdapter);
         // Do we need this if it's being initialized?
         mImageAdapter.notifyDataSetChanged();
