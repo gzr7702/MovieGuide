@@ -23,13 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Fragment that displays page of movie posters
+ * Fragment that displays page of movie posters, nested within MainActivity
  */
 public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCallback {
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
-    static final String SORT_ORDER = "sortOrder";
     private String mLatestSortOrder = null;
-    private ImageAdapter mImageAdapter;
     private GridView mGridview;
 
     private ArrayList<Movie> mMovieList;
@@ -104,10 +102,6 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
-        String message1 = "Sort Order " + sortOrder;
-        String message2 = "Latest Sort Order " + mLatestSortOrder;
-        Log.v(LOG_TAG, message1);
-        Log.v(LOG_TAG, message2);
 
         if (sortOrder != mLatestSortOrder) {
             updateMovieData();
@@ -122,27 +116,21 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         mMovieList = new ArrayList<Movie>(Arrays.asList(movies));
         int max_movies = mMovieList.size();
 
-
         String[] posterPaths = new String[max_movies];
         for(int i = 0; i < max_movies; i++) {
             posterPaths[i] = mMovieList.get(i).getPosterPath();
         }
 
-        Log.v(LOG_TAG, posterPaths.toString());
-
-        mImageAdapter = new ImageAdapter(getActivity(), posterPaths);
-        mGridview.setAdapter(mImageAdapter);
-        // Do we need this if it's being initialized?
-        mImageAdapter.notifyDataSetChanged();
-        Log.v(LOG_TAG, "updateData()");
+        ImageAdapter imageAdapter = new ImageAdapter(getActivity(), posterPaths);
+        mGridview.setAdapter(imageAdapter);
+        imageAdapter.notifyDataSetChanged();
     }
 
     /*
        * Get data from MovieDB
     */
     private void updateMovieData() {
-        Log.v(LOG_TAG, "in updateMovieData MovieFrag");
-        GetMovieDataTask movieTask = new GetMovieDataTask(this.getContext(), this);
+        GetMovieDataTask movieTask = new GetMovieDataTask(this);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");

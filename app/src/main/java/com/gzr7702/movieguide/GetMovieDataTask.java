@@ -2,8 +2,6 @@
 package com.gzr7702.movieguide;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -19,16 +17,18 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/*
+    * Used to fetch data from themoviedb.org's API
+    * Implements a call
+ */
+
 public class GetMovieDataTask extends AsyncTask<String, Void, Movie[]> {
 
     private final String LOG_TAG = GetMovieDataTask.class.getSimpleName();
-    public Context mContext;
     final int MAX_MOVIES = 20;
     AsyncCallback mAsyncCallback;
 
-    // We use a constructor so we can pass in the context for our DB helper.
-    public GetMovieDataTask(Context context, AsyncCallback asyncCallback) {
-        mContext = context;
+    public GetMovieDataTask(AsyncCallback asyncCallback) {
         mAsyncCallback = asyncCallback;
     }
 
@@ -107,10 +107,12 @@ public class GetMovieDataTask extends AsyncTask<String, Void, Movie[]> {
         return null;
     }
 
+    /*
+        * This let's the main fragment know the data has been updated
+     */
     @Override
     protected void onPostExecute(Movie[] result) {
         super.onPostExecute(result);
-        Log.v(LOG_TAG, "onPostExectute()");
         mAsyncCallback.updateData(result);
     }
 

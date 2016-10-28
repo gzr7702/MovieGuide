@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 /**
- * Adapter to sync images with gridview
+ * Adapter to sync images with gridview for main fragment
  */
 
 public class ImageAdapter extends BaseAdapter {

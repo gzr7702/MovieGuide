@@ -4,7 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Class to hold movie data
+ * Class to hold movie data. Implements Parcelable so it can be used
+ * to exchange data in onSavedInstanceState()
  */
 
 class Movie implements Parcelable {
