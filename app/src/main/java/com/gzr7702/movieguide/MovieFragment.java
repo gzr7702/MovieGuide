@@ -101,7 +101,7 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-        String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
+        String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "popular");
 
         if (sortOrder != mLatestSortOrder) {
             updateMovieData();
@@ -113,6 +113,12 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
      */
     @Override
     public void updateData(Movie[] movies) {
+
+        if (movies == null) {
+            String message = "Sorry, something went wrong. " + "" +
+                    "Please check you're internet connection and try again!";
+            Toast.makeText(getContext(), "We ain't online!", Toast.LENGTH_LONG).show();
+        }
         mMovieList = new ArrayList<Movie>(Arrays.asList(movies));
         int max_movies = mMovieList.size();
 
@@ -139,7 +145,9 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
         if (isOnline()) {
             movieTask.execute(sortOrder);
         } else {
-            Toast.makeText(getContext(), "We ain't online!", Toast.LENGTH_LONG).show();
+            String message = "Sorry, the internet is unreachable. " + "" +
+                    "Please check you're connection and try again!";
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         }
     }
 
