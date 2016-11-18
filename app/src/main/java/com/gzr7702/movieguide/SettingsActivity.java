@@ -1,8 +1,6 @@
 
 package com.gzr7702.movieguide;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;

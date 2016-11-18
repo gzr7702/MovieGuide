@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,22 +16,26 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.Toast;
+import android.support.v7.widget.RecyclerView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Fragment that displays page of movie posters, nested within MainActivity
  */
-public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCallback {
-    private final String LOG_TAG = MovieFragment.class.getSimpleName();
-    private String mLatestSortOrder = null;
-    private GridView mGridview;
 
+public class MovieFragment extends Fragment {
+    private final String LOG_TAG = MovieFragment.class.getSimpleName();
+    private final String API_KEY = Info.getKey();
+    private String mLatestSortOrder = null;
+    private RecyclerView mRecyclerView;
     private ArrayList<Movie> mMovieList;
+
+    private MovieAdapter mAdapter;
 
     public MovieFragment() {
     }
@@ -38,39 +43,31 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(LOG_TAG, "onCreate");
+
+        updateMovieData();
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("movies", mMovieList);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
         if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
             updateMovieData();
         } else {
             mMovieList = savedInstanceState.getParcelableArrayList("movies");
         }
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("movies", mMovieList);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        Log.v(LOG_TAG, "onCreateView()");
 
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
-        mGridview = (GridView) rootView.findViewById(R.id.gridview);
-
-        mGridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View v,
-                                    int position, long id) {
-                Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("movie", mMovieList.get(position));
-                startActivity(intent);
-            }
-        });
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        mRecyclerView.setLayoutManager(layoutManager);
 
         return rootView;
     }
@@ -109,41 +106,50 @@ public class MovieFragment extends Fragment implements GetMovieDataTask.AsyncCal
     }
 
     /*
-        * Notify image adapter
-     */
-    @Override
-    public void updateData(Movie[] movies) {
-
-        if (movies == null) {
-            String message = "Sorry, something went wrong. " + "" +
-                    "Please check you're internet connection and try again!";
-            Toast.makeText(getContext(), "We ain't online!", Toast.LENGTH_LONG).show();
-        }
-        mMovieList = new ArrayList<Movie>(Arrays.asList(movies));
-        int max_movies = mMovieList.size();
-
-        String[] posterPaths = new String[max_movies];
-        for(int i = 0; i < max_movies; i++) {
-            posterPaths[i] = mMovieList.get(i).getPosterPath();
-        }
-
-        ImageAdapter imageAdapter = new ImageAdapter(getActivity(), posterPaths);
-        mGridview.setAdapter(imageAdapter);
-        imageAdapter.notifyDataSetChanged();
-    }
-
-    /*
        * Get data from MovieDB
     */
     private void updateMovieData() {
-        GetMovieDataTask movieTask = new GetMovieDataTask(this);
-
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
         mLatestSortOrder = sortOrder;
+        Call<MoviesResponse> call;
 
         if (isOnline()) {
-            movieTask.execute(sortOrder);
+            MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
+            if (sortOrder.equals("top_rated")) {
+                call = apiService.getTopRatedMovies(API_KEY);
+            } else {
+                call = apiService.getPopularMovies(API_KEY);
+            }
+
+            call.enqueue(new Callback<MoviesResponse>() {
+                @Override
+                public void onResponse(Call<MoviesResponse> call, Response<MoviesResponse> response) {
+                    int status = response.code();
+                    if (status == 200) {
+                        mMovieList = response.body().getResults();
+                        mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
+                                new MovieAdapter.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(Movie movie) {
+                                        Toast.makeText(getContext(), movie.getTitle(), Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(getActivity(), DetailActivity.class)
+                                                .putExtra("movie", movie);
+                                        startActivity(intent);
+                                    }
+                                });
+                        mRecyclerView.setAdapter(mAdapter);
+                    } else {
+                        String errorMessadge = "We couldn't reach the interwebs, please check your connection";
+                        Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MoviesResponse> call, Throwable t) {
+
+                }
+            });
         } else {
             String message = "Sorry, the internet is unreachable. " + "" +
                     "Please check you're connection and try again!";

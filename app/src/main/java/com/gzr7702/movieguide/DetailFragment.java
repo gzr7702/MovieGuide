@@ -40,9 +40,9 @@ public class DetailFragment extends Fragment {
 
         titleView.setText(mMovie.getTitle());
         releaseDateView.setText(mMovie.getReleaseDate());
-        Double rating = mMovie.getRating();
-        ratingView.setText(rating.toString());
-        summaryView.setText(mMovie.getSummary());
+        Double rating = mMovie.getVoteAverage();
+        ratingView.setText(rating.toString() + "/10");
+        summaryView.setText(mMovie.getOverview());
 
         // We're going to get the pic from the internet
         String BASE_URL = "http://image.tmdb.org/t/p/";
