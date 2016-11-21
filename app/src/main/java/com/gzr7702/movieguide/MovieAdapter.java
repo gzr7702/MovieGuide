@@ -56,7 +56,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 imageSize = "w780";
             } else {
-                imageSize = "w185";
+                imageSize = "w500";
             }
 
             String posterPath = BASE_URL + imageSize + movie.getPosterPath();
