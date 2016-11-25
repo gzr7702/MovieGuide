@@ -92,6 +92,7 @@ public class Movie implements Parcelable {
         this.id = id;
     }
 
+    public int getID() { return this.id; }
 
     public String getTitle() {
         return title;

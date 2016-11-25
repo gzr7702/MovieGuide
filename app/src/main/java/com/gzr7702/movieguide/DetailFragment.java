@@ -1,6 +1,7 @@
 package com.gzr7702.movieguide;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -76,7 +77,11 @@ public class DetailFragment extends Fragment {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "My Favorite!", Toast.LENGTH_SHORT).show();
+                SharedPreferences sharedPref = getActivity().getPreferences(getContext().MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt(getString(R.string.saved_movie), mMovie.getID());
+                editor.commit();
+                Toast.makeText(getContext(), new Integer(mMovie.getID()).toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
