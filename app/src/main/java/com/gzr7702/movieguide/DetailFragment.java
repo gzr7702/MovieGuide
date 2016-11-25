@@ -7,13 +7,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-
 public class DetailFragment extends Fragment {
     Movie mMovie;
+    String[] mVideoList = {"Here is Video 1", "Here is Video 2", "Here is Video 3", "Here is Video 4"};
+    String[] mReviewList = {"Hated it!", "Loved it!", "Unconscionable!"};
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -37,6 +40,8 @@ public class DetailFragment extends Fragment {
         TextView releaseDateView = (TextView) rootView.findViewById(R.id.detail_movie_year);
         TextView ratingView = (TextView) rootView.findViewById(R.id.detail_user_rating);
         TextView summaryView = (TextView) rootView.findViewById(R.id.detail_movie_blurb);
+        LinearLayout videoLayout = (LinearLayout) rootView.findViewById(R.id.detail_video_container);
+        LinearLayout reviewLayout = (LinearLayout) rootView.findViewById(R.id.detail_review_container);
 
         titleView.setText(mMovie.getTitle());
         releaseDateView.setText(mMovie.getReleaseDate());
@@ -55,6 +60,27 @@ public class DetailFragment extends Fragment {
                 .load(mImageUrl)
                 .placeholder(R.drawable.placeholder)
                 .into(posterView);
+
+        // TODO hook up back end
+        for (final String video : mVideoList) {
+
+            View videoContainer = LayoutInflater.from(getActivity()).inflate(
+                    R.layout.video_view, null);
+
+            videoContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(getContext(), "Playing a video", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            TextView videoTitle = (TextView) videoContainer.findViewById(R.id.video_title);
+            videoTitle.setText(video.toString());
+
+            videoLayout.addView(videoContainer);
+        }
+
+        // TODO review list
 
         return rootView;
     }

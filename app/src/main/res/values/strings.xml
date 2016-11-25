@@ -24,4 +24,6 @@
     <!-- sort order by ratings values-->
     <string name="pref_sort_rating" translatable="false">top_rated</string>
 
+    <!-- video title-->
+    <string name="video_title" translatable="false">Video Clips:</string>
 </resources>

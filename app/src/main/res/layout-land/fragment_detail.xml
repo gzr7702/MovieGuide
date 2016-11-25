@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:textSize="40sp"
             android:textStyle="bold"
-            android:textColor="@color/textColor"
+            android:textColor="@color/lightTextColor"
             android:layout_margin="25dp"
             android:gravity="center_vertical"
             android:layout_weight="1" />
@@ -72,7 +72,7 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
                         android:background="@color/colorAccent"
-                        android:textColor="@color/textColor"
+                        android:textColor="@color/lightTextColor"
                         android:text="@string/button_activity_detail"/>
                 </LinearLayout>
 
