@@ -13,10 +13,15 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 public class DetailFragment extends Fragment {
     Movie mMovie;
     String[] mVideoList = {"Here is Video 1", "Here is Video 2", "Here is Video 3", "Here is Video 4"};
-    String[] mReviewList = {"Hated it!", "Loved it!", "Unconscionable!"};
+    HashMap<String, String> mReviewList = new HashMap<String, String>();
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -27,6 +32,10 @@ public class DetailFragment extends Fragment {
         super.onCreate(onSavedInstanceState);
         Intent intent = getActivity().getIntent();
         mMovie = intent.getExtras().getParcelable("movie");
+        // Temp reviews ==============================
+        mReviewList.put("Joe", "Hated it!");
+        mReviewList.put("Chuck", "Loved it!");
+        mReviewList.put("Phil", "Unconscionable!");
     }
 
     @Override
@@ -61,7 +70,7 @@ public class DetailFragment extends Fragment {
                 .placeholder(R.drawable.placeholder)
                 .into(posterView);
 
-        // TODO hook up back end
+        // TODO hook up back end for videos
         for (final String video : mVideoList) {
 
             View videoContainer = LayoutInflater.from(getActivity()).inflate(
@@ -80,7 +89,29 @@ public class DetailFragment extends Fragment {
             videoLayout.addView(videoContainer);
         }
 
-        // TODO review list
+        // TODO hookup backend review list
+        Set reviewSet = mReviewList.entrySet();
+        Iterator reviewIter = reviewSet.iterator();
+
+        while (reviewIter.hasNext()) {
+
+            final Map.Entry reviewEntry = (Map.Entry) reviewIter.next();
+
+            View reviewContainer = LayoutInflater.from(getActivity()).inflate(
+                    R.layout.review_view, null);
+
+            reviewContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(getContext(), (String) reviewEntry.getValue(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            TextView reviewAuthor = (TextView) reviewContainer.findViewById(R.id.review_textview);
+            reviewAuthor.setText((String) reviewEntry.getKey());
+
+            reviewLayout.addView(reviewContainer);
+        }
 
         return rootView;
     }

@@ -26,4 +26,6 @@
 
     <!-- video title-->
     <string name="video_title" translatable="false">Video Clips:</string>
+    <!-- Review title-->
+    <string name="review_title" translatable="false">Reviews:</string>
 </resources>
