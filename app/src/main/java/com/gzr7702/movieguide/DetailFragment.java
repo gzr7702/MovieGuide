@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,6 +50,7 @@ public class DetailFragment extends Fragment {
         TextView releaseDateView = (TextView) rootView.findViewById(R.id.detail_movie_year);
         TextView ratingView = (TextView) rootView.findViewById(R.id.detail_user_rating);
         TextView summaryView = (TextView) rootView.findViewById(R.id.detail_movie_blurb);
+        final Button favoriteButton = (Button) rootView.findViewById(R.id.detail_rating_button);
         LinearLayout videoLayout = (LinearLayout) rootView.findViewById(R.id.detail_video_container);
         LinearLayout reviewLayout = (LinearLayout) rootView.findViewById(R.id.detail_review_container);
 
@@ -69,6 +71,14 @@ public class DetailFragment extends Fragment {
                 .load(mImageUrl)
                 .placeholder(R.drawable.placeholder)
                 .into(posterView);
+
+        // TODO make this movie a favorite
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getContext(), "My Favorite!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // TODO hook up back end for videos
         for (final String video : mVideoList) {
