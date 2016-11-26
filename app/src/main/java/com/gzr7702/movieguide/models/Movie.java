@@ -1,4 +1,4 @@
-package com.gzr7702.movieguide;
+package com.gzr7702.movieguide.models;
 
 /**
  * Class to hold movie data using Retrofit.

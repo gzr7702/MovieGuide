@@ -1,6 +1,7 @@
-package com.gzr7702.movieguide;
+package com.gzr7702.movieguide.models;
 
 import com.google.gson.annotations.SerializedName;
+import com.gzr7702.movieguide.models.Movie;
 
 import java.util.ArrayList;
 

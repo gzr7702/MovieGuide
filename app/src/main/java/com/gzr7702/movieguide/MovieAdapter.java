@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.content.res.Configuration;
 
 
+import com.gzr7702.movieguide.models.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

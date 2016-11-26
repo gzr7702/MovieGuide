@@ -18,6 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import android.support.v7.widget.RecyclerView;
+
+import com.gzr7702.movieguide.models.Movie;
+import com.gzr7702.movieguide.models.MoviesResponse;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -132,7 +136,6 @@ public class MovieFragment extends Fragment {
                                 new MovieAdapter.OnItemClickListener() {
                                     @Override
                                     public void onItemClick(Movie movie) {
-                                        Toast.makeText(getContext(), movie.getTitle(), Toast.LENGTH_SHORT).show();
                                         Intent intent = new Intent(getActivity(), DetailActivity.class)
                                                 .putExtra("movie", movie);
                                         startActivity(intent);

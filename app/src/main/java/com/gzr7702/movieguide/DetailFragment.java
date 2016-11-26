@@ -1,8 +1,12 @@
 package com.gzr7702.movieguide;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,19 +18,29 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gzr7702.movieguide.models.Movie;
+import com.gzr7702.movieguide.models.MoviesResponse;
+import com.gzr7702.movieguide.models.Review;
+import com.gzr7702.movieguide.models.ReviewResponse;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     Movie mMovie;
+    private final String API_KEY = Info.getKey();
     String[] mVideoList = {"Here is Video 1", "Here is Video 2", "Here is Video 3", "Here is Video 4"};
-    HashMap<String, String> mReviewList = new HashMap<String, String>();
+    ArrayList<Review> mReviewList = new ArrayList<>();
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -37,10 +51,6 @@ public class DetailFragment extends Fragment {
         super.onCreate(onSavedInstanceState);
         Intent intent = getActivity().getIntent();
         mMovie = intent.getExtras().getParcelable("movie");
-        // Temp reviews ==============================
-        mReviewList.put("Joe", "Hated it!");
-        mReviewList.put("Chuck", "Loved it!");
-        mReviewList.put("Phil", "Unconscionable!");
     }
 
     @Override
@@ -93,7 +103,7 @@ public class DetailFragment extends Fragment {
                 editor.putStringSet(getString(R.string.saved_movie), movieIds);
                 editor.commit();
 
-                Toast.makeText(getContext(), new Integer(mMovie.getID()).toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -117,12 +127,9 @@ public class DetailFragment extends Fragment {
         }
 
         // TODO hookup backend review list
-        Set reviewSet = mReviewList.entrySet();
-        Iterator reviewIter = reviewSet.iterator();
+        getReviewData();
 
-        while (reviewIter.hasNext()) {
-
-            final Map.Entry reviewEntry = (Map.Entry) reviewIter.next();
+        for (final Review review: mReviewList) {
 
             View reviewContainer = LayoutInflater.from(getActivity()).inflate(
                     R.layout.review_view, null);
@@ -130,17 +137,70 @@ public class DetailFragment extends Fragment {
             reviewContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(getContext(), (String) reviewEntry.getValue(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Review Goes Here", Toast.LENGTH_SHORT).show();
                 }
             });
 
             TextView reviewAuthor = (TextView) reviewContainer.findViewById(R.id.review_textview);
-            reviewAuthor.setText((String) reviewEntry.getKey());
+            reviewAuthor.setText("Author Goes Here");
 
             reviewLayout.addView(reviewContainer);
         }
 
         return rootView;
+    }
+
+    private void getReviewData() {
+        Call<ReviewResponse> call;
+
+        if (isOnline()) {
+            MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
+            String movieId = new Integer(mMovie.getID()).toString();
+            call = apiService.getReview(movieId, API_KEY);
+
+            call.enqueue(new Callback<ReviewResponse>() {
+                @Override
+                public void onResponse(Call<ReviewResponse> call, Response<ReviewResponse> response) {
+                    int status = response.code();
+                    // TODO: not able to fetch reviews, start debugging here
+                    if (status == 200) {
+                        mReviewList = response.body().getResults();
+                        Log.v(LOG_TAG, mReviewList.toString());
+                        /*
+                        mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
+                                new MovieAdapter.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(Movie movie) {
+                                        Intent intent = new Intent(getActivity(), DetailActivity.class)
+                                                .putExtra("movie", movie);
+                                        startActivity(intent);
+                                    }
+                                });
+                        mRecyclerView.setAdapter(mAdapter);
+                        */
+                    } else {
+                        String errorMessadge = "We're having trouble with the Cyber, please check your connection";
+                        Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ReviewResponse> call, Throwable t) {
+
+                }
+            });
+        } else {
+            String message = "Sorry, the internet is unreachable. " + "" +
+                    "Please check you're connection and try again!";
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnected();
     }
 
 }
