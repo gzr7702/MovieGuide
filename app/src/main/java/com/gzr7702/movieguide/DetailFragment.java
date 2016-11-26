@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +17,13 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 public class DetailFragment extends Fragment {
+    private final String LOG_TAG = DetailFragment.class.getSimpleName();
     Movie mMovie;
     String[] mVideoList = {"Here is Video 1", "Here is Video 2", "Here is Video 3", "Here is Video 4"};
     HashMap<String, String> mReviewList = new HashMap<String, String>();
@@ -73,14 +76,23 @@ public class DetailFragment extends Fragment {
                 .placeholder(R.drawable.placeholder)
                 .into(posterView);
 
-        // TODO make this movie a favorite
+        // Callback used to save favorite movie IDs
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String newId = new Integer(mMovie.getID()).toString();
+
+                // Get saved set of movie ids
                 SharedPreferences sharedPref = getActivity().getPreferences(getContext().MODE_PRIVATE);
+                Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movie), new HashSet<String>());
+                Log.v(LOG_TAG, movieIds.toString());
+
+                // Add new Id to the set and save
+                movieIds.add(newId);
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putInt(getString(R.string.saved_movie), mMovie.getID());
+                editor.putStringSet(getString(R.string.saved_movie), movieIds);
                 editor.commit();
+
                 Toast.makeText(getContext(), new Integer(mMovie.getID()).toString(), Toast.LENGTH_SHORT).show();
             }
         });
