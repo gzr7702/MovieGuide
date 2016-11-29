@@ -121,7 +121,7 @@ public class DetailFragment extends Fragment {
             videoLayout.addView(videoContainer);
         }
 
-        // TODO hookup backend review list
+        // TODO create separate activity or dialog
         Call<ReviewResponse> call;
 
         if (isOnline()) {
