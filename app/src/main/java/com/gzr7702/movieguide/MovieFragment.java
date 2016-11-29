@@ -150,7 +150,7 @@ public class MovieFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<MoviesResponse> call, Throwable t) {
-
+                    Log.e(LOG_TAG, t.toString());
                 }
             });
         } else {

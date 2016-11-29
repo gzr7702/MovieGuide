@@ -11,13 +11,13 @@ import com.google.gson.annotations.SerializedName;
 
 public class Review implements Parcelable {
     @SerializedName("id")
-    private int id;
+    private String id;
     @SerializedName("author")
     private String author;
     @SerializedName("content")
     private String content;
 
-    public Review(int id, String author, String content) {
+    public Review(String id, String author, String content) {
         this.id = id;
         this.author = author;
         this.content = content;
@@ -25,14 +25,14 @@ public class Review implements Parcelable {
 
     Review(Parcel in) {
 
-        id = in.readInt();
+        id = in.readString();
         author = in.readString();
         content = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(id);
+        parcel.writeString(id);
         parcel.writeString(author);
         parcel.writeString(content);
     }
@@ -56,11 +56,11 @@ public class Review implements Parcelable {
         return 0;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getID() { return this.id; }
+    public String getID() { return this.id; }
 
     public String getAuthor() {
         return author;

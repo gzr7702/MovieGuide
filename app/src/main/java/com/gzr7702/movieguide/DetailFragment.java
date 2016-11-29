@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,16 +18,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gzr7702.movieguide.models.Movie;
-import com.gzr7702.movieguide.models.MoviesResponse;
 import com.gzr7702.movieguide.models.Review;
 import com.gzr7702.movieguide.models.ReviewResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import retrofit2.Call;
@@ -66,7 +61,7 @@ public class DetailFragment extends Fragment {
         TextView summaryView = (TextView) rootView.findViewById(R.id.detail_movie_blurb);
         final Button favoriteButton = (Button) rootView.findViewById(R.id.detail_rating_button);
         LinearLayout videoLayout = (LinearLayout) rootView.findViewById(R.id.detail_video_container);
-        LinearLayout reviewLayout = (LinearLayout) rootView.findViewById(R.id.detail_review_container);
+        final LinearLayout reviewLayout = (LinearLayout) rootView.findViewById(R.id.detail_review_container);
 
         titleView.setText(mMovie.getTitle());
         releaseDateView.setText(mMovie.getReleaseDate());
@@ -95,7 +90,7 @@ public class DetailFragment extends Fragment {
                 // Get saved set of movie ids
                 SharedPreferences sharedPref = getActivity().getPreferences(getContext().MODE_PRIVATE);
                 Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movie), new HashSet<String>());
-                Log.v(LOG_TAG, movieIds.toString());
+                Log.v(LOG_TAG, "ids: " + movieIds.toString());
 
                 // Add new Id to the set and save
                 movieIds.add(newId);
@@ -127,30 +122,6 @@ public class DetailFragment extends Fragment {
         }
 
         // TODO hookup backend review list
-        getReviewData();
-
-        for (final Review review: mReviewList) {
-
-            View reviewContainer = LayoutInflater.from(getActivity()).inflate(
-                    R.layout.review_view, null);
-
-            reviewContainer.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(getContext(), "Review Goes Here", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            TextView reviewAuthor = (TextView) reviewContainer.findViewById(R.id.review_textview);
-            reviewAuthor.setText("Author Goes Here");
-
-            reviewLayout.addView(reviewContainer);
-        }
-
-        return rootView;
-    }
-
-    private void getReviewData() {
         Call<ReviewResponse> call;
 
         if (isOnline()) {
@@ -165,19 +136,27 @@ public class DetailFragment extends Fragment {
                     // TODO: not able to fetch reviews, start debugging here
                     if (status == 200) {
                         mReviewList = response.body().getResults();
-                        Log.v(LOG_TAG, mReviewList.toString());
-                        /*
-                        mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
-                                new MovieAdapter.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(Movie movie) {
-                                        Intent intent = new Intent(getActivity(), DetailActivity.class)
-                                                .putExtra("movie", movie);
-                                        startActivity(intent);
-                                    }
-                                });
-                        mRecyclerView.setAdapter(mAdapter);
-                        */
+
+                        // create review list
+                        for (final Review review: mReviewList) {
+
+                            View reviewContainer = LayoutInflater.from(getActivity()).inflate(
+                                    R.layout.review_view, null);
+                            Log.v(LOG_TAG, "In for loop");
+
+                            reviewContainer.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Toast.makeText(getContext(), review.getContent(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                            TextView reviewAuthor = (TextView) reviewContainer.findViewById(R.id.review_textview);
+                            reviewAuthor.setText(review.getAuthor());
+
+                            reviewLayout.addView(reviewContainer);
+                        }
+
                     } else {
                         String errorMessadge = "We're having trouble with the Cyber, please check your connection";
                         Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
@@ -186,7 +165,7 @@ public class DetailFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<ReviewResponse> call, Throwable t) {
-
+                    Log.e(LOG_TAG, t.toString());
                 }
             });
         } else {
@@ -194,6 +173,8 @@ public class DetailFragment extends Fragment {
                     "Please check you're connection and try again!";
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         }
+
+        return rootView;
     }
 
     public boolean isOnline() {
