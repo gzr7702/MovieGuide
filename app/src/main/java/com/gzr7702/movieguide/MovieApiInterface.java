@@ -6,6 +6,7 @@ package com.gzr7702.movieguide;
 
 import com.gzr7702.movieguide.models.MoviesResponse;
 import com.gzr7702.movieguide.models.ReviewResponse;
+import com.gzr7702.movieguide.models.VideoResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -22,4 +23,7 @@ public interface MovieApiInterface {
 
     @GET("movie/{id}/reviews")
     Call<ReviewResponse> getReview(@Path("id") String id, @Query("api_key") String apiKey);
+
+    @GET("movie/{id}/videos")
+    Call<VideoResponse> getVideo(@Path("id") String id, @Query("api_key") String apiKey);
 }

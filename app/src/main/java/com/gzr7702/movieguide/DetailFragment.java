@@ -20,6 +20,8 @@ import android.widget.Toast;
 import com.gzr7702.movieguide.models.Movie;
 import com.gzr7702.movieguide.models.Review;
 import com.gzr7702.movieguide.models.ReviewResponse;
+import com.gzr7702.movieguide.models.Video;
+import com.gzr7702.movieguide.models.VideoResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     Movie mMovie;
     private final String API_KEY = Info.getKey();
-    String[] mVideoList = {"Here is Video 1", "Here is Video 2", "Here is Video 3", "Here is Video 4"};
+    ArrayList<Video> mVideoList = new ArrayList<>();
     ArrayList<Review> mReviewList = new ArrayList<>();
 
     public DetailFragment() {
@@ -60,7 +62,7 @@ public class DetailFragment extends Fragment {
         TextView ratingView = (TextView) rootView.findViewById(R.id.detail_user_rating);
         TextView summaryView = (TextView) rootView.findViewById(R.id.detail_movie_blurb);
         final Button favoriteButton = (Button) rootView.findViewById(R.id.detail_rating_button);
-        LinearLayout videoLayout = (LinearLayout) rootView.findViewById(R.id.detail_video_container);
+        final LinearLayout videoLayout = (LinearLayout) rootView.findViewById(R.id.detail_video_container);
         final LinearLayout reviewLayout = (LinearLayout) rootView.findViewById(R.id.detail_review_container);
 
         titleView.setText(mMovie.getTitle());
@@ -103,35 +105,70 @@ public class DetailFragment extends Fragment {
         });
 
         // TODO hook up back end for videos
-        for (final String video : mVideoList) {
+        // ===============================================
+        Call<VideoResponse> videoCall;
 
-            View videoContainer = LayoutInflater.from(getActivity()).inflate(
-                    R.layout.video_view, null);
+        if (isOnline()) {
+            MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
+            String movieId = Integer.toString(mMovie.getID());
+            videoCall = apiService.getVideo(movieId, API_KEY);
 
-            videoContainer.setOnClickListener(new View.OnClickListener() {
+            videoCall.enqueue(new Callback<VideoResponse>() {
                 @Override
-                public void onClick(View view) {
-                    Toast.makeText(getContext(), "Playing a video", Toast.LENGTH_SHORT).show();
+                public void onResponse(Call<VideoResponse> videoCall, Response<VideoResponse> response) {
+                    int status = response.code();
+                    // TODO: not able to fetch reviews, start debugging here
+                    if (status == 200) {
+                        mVideoList = response.body().getResults();
+
+                        // ===============================================
+                        for (final Video video : mVideoList) {
+
+                            View videoContainer = LayoutInflater.from(getActivity()).inflate(
+                                    R.layout.video_view, null);
+
+                            videoContainer.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Toast.makeText(getContext(), "Playing a video", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                            TextView videoTitle = (TextView) videoContainer.findViewById(R.id.video_title);
+                            videoTitle.setText(video.toString());
+
+                            videoLayout.addView(videoContainer);
+                        }
+                        // ========================================================
+                    } else {
+                        String errorMessadge = "We're having trouble with the Cyber, please check your connection";
+                        Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<VideoResponse> videoCall, Throwable t) {
+                    Log.e(LOG_TAG, t.toString());
                 }
             });
-
-            TextView videoTitle = (TextView) videoContainer.findViewById(R.id.video_title);
-            videoTitle.setText(video.toString());
-
-            videoLayout.addView(videoContainer);
+        } else {
+            String message = "Sorry, the internet is unreachable. " + "" +
+                    "Please check you're connection and try again!";
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         }
+        // ========================================================
 
         // TODO create separate activity or dialog
-        Call<ReviewResponse> call;
+        Call<ReviewResponse> reviewCall;
 
         if (isOnline()) {
             MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
             String movieId = new Integer(mMovie.getID()).toString();
-            call = apiService.getReview(movieId, API_KEY);
+            reviewCall = apiService.getReview(movieId, API_KEY);
 
-            call.enqueue(new Callback<ReviewResponse>() {
+            reviewCall.enqueue(new Callback<ReviewResponse>() {
                 @Override
-                public void onResponse(Call<ReviewResponse> call, Response<ReviewResponse> response) {
+                public void onResponse(Call<ReviewResponse> reviewCall, Response<ReviewResponse> response) {
                     int status = response.code();
                     // TODO: not able to fetch reviews, start debugging here
                     if (status == 200) {
@@ -142,7 +179,6 @@ public class DetailFragment extends Fragment {
 
                             View reviewContainer = LayoutInflater.from(getActivity()).inflate(
                                     R.layout.review_view, null);
-                            Log.v(LOG_TAG, "In for loop");
 
                             reviewContainer.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -164,7 +200,7 @@ public class DetailFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Call<ReviewResponse> call, Throwable t) {
+                public void onFailure(Call<ReviewResponse> reviewCall, Throwable t) {
                     Log.e(LOG_TAG, t.toString());
                 }
             });
