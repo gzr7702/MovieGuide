@@ -1,10 +1,12 @@
 package com.gzr7702.movieguide;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -31,6 +33,8 @@ import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.R.attr.id;
 
 public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
@@ -104,8 +108,8 @@ public class DetailFragment extends Fragment {
             }
         });
 
-        // TODO hook up back end for videos
-        // ===============================================
+        // Fetch video links
+        // call intent to start youtube app or use the web
         Call<VideoResponse> videoCall;
 
         if (isOnline()) {
@@ -117,11 +121,9 @@ public class DetailFragment extends Fragment {
                 @Override
                 public void onResponse(Call<VideoResponse> videoCall, Response<VideoResponse> response) {
                     int status = response.code();
-                    // TODO: not able to fetch reviews, start debugging here
                     if (status == 200) {
                         mVideoList = response.body().getResults();
 
-                        // ===============================================
                         for (final Video video : mVideoList) {
 
                             View videoContainer = LayoutInflater.from(getActivity()).inflate(
@@ -130,16 +132,18 @@ public class DetailFragment extends Fragment {
                             videoContainer.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    Toast.makeText(getContext(), "Playing a video", Toast.LENGTH_SHORT).show();
+                                    watchVideo(video.getKey());
+                                    String url = "http://www.youtube.com/watch?v=" + video.getKey();
+                                    Toast.makeText(getContext(), url, Toast.LENGTH_SHORT).show();
+
                                 }
                             });
 
                             TextView videoTitle = (TextView) videoContainer.findViewById(R.id.video_title);
-                            videoTitle.setText(video.toString());
+                            videoTitle.setText(video.getName());
 
                             videoLayout.addView(videoContainer);
                         }
-                        // ========================================================
                     } else {
                         String errorMessadge = "We're having trouble with the Cyber, please check your connection";
                         Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
@@ -156,7 +160,6 @@ public class DetailFragment extends Fragment {
                     "Please check you're connection and try again!";
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         }
-        // ========================================================
 
         // TODO create separate activity or dialog
         Call<ReviewResponse> reviewCall;
@@ -211,6 +214,17 @@ public class DetailFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    private void watchVideo(String id){
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
+        Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://www.youtube.com/watch?v=" + id));
+        try {
+            startActivity(appIntent);
+        } catch (ActivityNotFoundException ex) {
+            startActivity(webIntent);
+        }
     }
 
     public boolean isOnline() {
