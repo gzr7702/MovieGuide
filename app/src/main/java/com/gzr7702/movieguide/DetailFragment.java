@@ -70,6 +70,7 @@ public class DetailFragment extends Fragment {
         TextView summaryView = (TextView) rootView.findViewById(R.id.detail_movie_blurb);
         final Button favoriteButton = (Button) rootView.findViewById(R.id.detail_rating_button);
         final LinearLayout videoLayout = (LinearLayout) rootView.findViewById(R.id.detail_video_container);
+        final TextView reviewHeader = (TextView) rootView.findViewById(R.id.detail_review_textview);
         final LinearLayout reviewLayout = (LinearLayout) rootView.findViewById(R.id.detail_review_container);
 
         titleView.setText(mMovie.getTitle());
@@ -175,49 +176,41 @@ public class DetailFragment extends Fragment {
                     int status = response.code();
                     if (status == 200) {
                         mReviewList = response.body().getResults();
-                        // TODO: if empty, don't show review section
-                        Log.v(LOG_TAG, "empty? " + mReviewList.isEmpty());
 
-                        // create review list
-                        for (final Review review: mReviewList) {
+                        if (!mReviewList.isEmpty()) {
+                            // create review list
+                            for (final Review review : mReviewList) {
 
-                            View reviewContainer = LayoutInflater.from(getActivity()).inflate(
-                                    R.layout.review_view, null);
+                                View reviewContainer = LayoutInflater.from(getActivity()).inflate(
+                                        R.layout.review_view, null);
 
-                            reviewContainer.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    // TODO create separate activity or dialog
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                                            getContext());
+                                reviewContainer.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                                getContext());
+                                        alertDialogBuilder.setTitle(review.getAuthor());
+                                        alertDialogBuilder
+                                                .setMessage(review.getContent())
+                                                .setCancelable(false)
+                                                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        // if this button is clicked, close the dialog box
+                                                        dialog.cancel();
+                                                    }
+                                                });
+                                        AlertDialog alertDialog = alertDialogBuilder.create();
+                                        alertDialog.show();
+                                    }
+                                });
 
-                                    // set title
-                                    alertDialogBuilder.setTitle(review.getAuthor());
+                                TextView reviewAuthor = (TextView) reviewContainer.findViewById(R.id.review_textview);
+                                reviewAuthor.setText(review.getAuthor());
 
-                                    // set dialog message
-                                    alertDialogBuilder
-                                            .setMessage(review.getContent())
-                                            .setCancelable(false)
-                                            .setNegativeButton("Close",new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog,int id) {
-                                                    // if this button is clicked, close the dialog box
-                                                    dialog.cancel();
-                                                }
-                                            });
-
-                                    // create alert dialog
-                                    AlertDialog alertDialog = alertDialogBuilder.create();
-
-                                    // show it
-                                    alertDialog.show();
-                                }
-                                    //Toast.makeText(getContext(), review.getContent(), Toast.LENGTH_SHORT).show();
-                            });
-
-                            TextView reviewAuthor = (TextView) reviewContainer.findViewById(R.id.review_textview);
-                            reviewAuthor.setText(review.getAuthor());
-
-                            reviewLayout.addView(reviewContainer);
+                                reviewLayout.addView(reviewContainer);
+                            }
+                        } else {
+                            reviewHeader.setVisibility(View.GONE);
                         }
 
                     } else {
