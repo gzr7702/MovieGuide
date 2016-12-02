@@ -1,7 +1,10 @@
 package com.gzr7702.movieguide;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -108,7 +111,7 @@ public class DetailFragment extends Fragment {
             }
         });
 
-        // Fetch video links
+        // Fetch video links and
         // call intent to start youtube app or use the web
         Call<VideoResponse> videoCall;
 
@@ -133,9 +136,6 @@ public class DetailFragment extends Fragment {
                                 @Override
                                 public void onClick(View view) {
                                     watchVideo(video.getKey());
-                                    String url = "http://www.youtube.com/watch?v=" + video.getKey();
-                                    Toast.makeText(getContext(), url, Toast.LENGTH_SHORT).show();
-
                                 }
                             });
 
@@ -161,7 +161,7 @@ public class DetailFragment extends Fragment {
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         }
 
-        // TODO create separate activity or dialog
+        // Fetch reviews and create list
         Call<ReviewResponse> reviewCall;
 
         if (isOnline()) {
@@ -173,9 +173,10 @@ public class DetailFragment extends Fragment {
                 @Override
                 public void onResponse(Call<ReviewResponse> reviewCall, Response<ReviewResponse> response) {
                     int status = response.code();
-                    // TODO: not able to fetch reviews, start debugging here
                     if (status == 200) {
                         mReviewList = response.body().getResults();
+                        // TODO: if empty, don't show review section
+                        Log.v(LOG_TAG, "empty? " + mReviewList.isEmpty());
 
                         // create review list
                         for (final Review review: mReviewList) {
@@ -186,8 +187,31 @@ public class DetailFragment extends Fragment {
                             reviewContainer.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    Toast.makeText(getContext(), review.getContent(), Toast.LENGTH_SHORT).show();
+                                    // TODO create separate activity or dialog
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                            getContext());
+
+                                    // set title
+                                    alertDialogBuilder.setTitle(review.getAuthor());
+
+                                    // set dialog message
+                                    alertDialogBuilder
+                                            .setMessage(review.getContent())
+                                            .setCancelable(false)
+                                            .setNegativeButton("Close",new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog,int id) {
+                                                    // if this button is clicked, close the dialog box
+                                                    dialog.cancel();
+                                                }
+                                            });
+
+                                    // create alert dialog
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+
+                                    // show it
+                                    alertDialog.show();
                                 }
+                                    //Toast.makeText(getContext(), review.getContent(), Toast.LENGTH_SHORT).show();
                             });
 
                             TextView reviewAuthor = (TextView) reviewContainer.findViewById(R.id.review_textview);
@@ -216,6 +240,9 @@ public class DetailFragment extends Fragment {
         return rootView;
     }
 
+    /*
+        * Method used to start youtube app or web version
+     */
     private void watchVideo(String id){
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
