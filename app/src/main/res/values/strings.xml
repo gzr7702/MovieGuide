@@ -17,11 +17,15 @@
     <string name="pref_sort_label_popularity" translatable="false">Most Popular</string>
     <!-- sort order by ratings label -->
     <string name="pref_sort_label_rating" translatable="false">Top Ratings</string>
+    <!-- sort order by favorites label -->
+    <string name="pref_sort_label_favorite" translatable="false">Favorites</string>
 
     <!-- sort order by popularity values-->
     <string name="pref_sort_popularity" translatable="false">popular</string>
     <!-- sort order by ratings values-->
     <string name="pref_sort_rating" translatable="false">top_rated</string>
+    <!-- sort order by favorite -->
+    <string name="pref_sort_favorite" translatable="false">favorites</string>
 
     <!-- video title-->
     <string name="video_title" translatable="false">Video Clips:</string>

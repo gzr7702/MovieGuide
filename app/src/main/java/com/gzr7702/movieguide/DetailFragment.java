@@ -1,7 +1,6 @@
 package com.gzr7702.movieguide;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -121,6 +120,7 @@ public class DetailFragment extends Fragment {
             String movieId = Integer.toString(mMovie.getID());
             videoCall = apiService.getVideo(movieId, API_KEY);
 
+            // TODO: separate out callback
             videoCall.enqueue(new Callback<VideoResponse>() {
                 @Override
                 public void onResponse(Call<VideoResponse> videoCall, Response<VideoResponse> response) {
@@ -170,6 +170,7 @@ public class DetailFragment extends Fragment {
             String movieId = new Integer(mMovie.getID()).toString();
             reviewCall = apiService.getReview(movieId, API_KEY);
 
+            // TODO: separate out callback
             reviewCall.enqueue(new Callback<ReviewResponse>() {
                 @Override
                 public void onResponse(Call<ReviewResponse> reviewCall, Response<ReviewResponse> response) {

@@ -3,6 +3,7 @@ package com.gzr7702.movieguide;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.IntegerRes;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,6 +28,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Fragment that displays page of movie posters, nested within MainActivity
@@ -98,7 +101,6 @@ public class MovieFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        Log.v(LOG_TAG, "onResume() has been called");
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
@@ -120,43 +122,72 @@ public class MovieFragment extends Fragment {
 
         if (isOnline()) {
             MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
-            if (sortOrder.equals("top_rated")) {
+            if (sortOrder.contentEquals("favorite")) {
+                // TODO: check that favorite movies is not empty
+                // TODO: make this work
+                Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movie), new HashSet<String>());
+
+                for (String movieId : movieIds) {
+                    call = apiService.getMovie(movieId, API_KEY);
+                    call.enqueue(new MovieCallback(false));
+                }
+            } else if (sortOrder.equals("top_rated")) {
                 call = apiService.getTopRatedMovies(API_KEY);
-            } else {
+                call.enqueue(new MovieCallback(true));
+            } else{
+                // Sort order is popular
                 call = apiService.getPopularMovies(API_KEY);
+                call.enqueue(new MovieCallback(true));
             }
 
-            call.enqueue(new Callback<MoviesResponse>() {
-                @Override
-                public void onResponse(Call<MoviesResponse> call, Response<MoviesResponse> response) {
-                    int status = response.code();
-                    if (status == 200) {
-                        mMovieList = response.body().getResults();
-                        mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
-                                new MovieAdapter.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(Movie movie) {
-                                        Intent intent = new Intent(getActivity(), DetailActivity.class)
-                                                .putExtra("movie", movie);
-                                        startActivity(intent);
-                                    }
-                                });
-                        mRecyclerView.setAdapter(mAdapter);
-                    } else {
-                        String errorMessadge = "We couldn't reach the interwebs, please check your connection";
-                        Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<MoviesResponse> call, Throwable t) {
-                    Log.e(LOG_TAG, t.toString());
-                }
-            });
         } else {
             String message = "Sorry, the internet is unreachable. " + "" +
                     "Please check you're connection and try again!";
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /*
+        * Callback used by retrofit for Movies
+        * Takes a boolean to indicate if we should assign the entire list
+        * or just one element
+     */
+
+    private class MovieCallback implements retrofit2.Callback<MoviesResponse> {
+        public boolean isList;
+
+        MovieCallback(boolean isList) {
+            this.isList = isList;
+        }
+
+        @Override
+        public void onResponse(Call<MoviesResponse> call, Response<MoviesResponse> response) {
+            int status = response.code();
+            if (status == 200) {
+                if (this.isList == true) {
+                    mMovieList = response.body().getResults();
+                } else {
+                    mMovieList.add(response.body().getResults().get(0));
+                }
+                mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
+                        new MovieAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(Movie movie) {
+                                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                                        .putExtra("movie", movie);
+                                startActivity(intent);
+                            }
+                        });
+                mRecyclerView.setAdapter(mAdapter);
+            } else {
+                String errorMessadge = "We couldn't reach the interwebs, please check your connection";
+                Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        public void onFailure(Call<MoviesResponse> call, Throwable t) {
+            Log.e(LOG_TAG, t.toString());
         }
     }
 

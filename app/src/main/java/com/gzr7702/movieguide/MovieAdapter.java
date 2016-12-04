@@ -62,7 +62,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
             String posterPath = BASE_URL + imageSize + movie.getPosterPath();
 
-            // TODO: Fix elongated grid panels
             Log.v(LOG_TAG, posterPath);
             Picasso.with(mContext)
                     .load(posterPath)
