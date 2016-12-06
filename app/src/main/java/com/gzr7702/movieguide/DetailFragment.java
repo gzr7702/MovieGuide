@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -97,14 +98,15 @@ public class DetailFragment extends Fragment {
                 String newId = new Integer(mMovie.getID()).toString();
 
                 // Get saved set of movie ids
-                SharedPreferences sharedPref = getActivity().getPreferences(getContext().MODE_PRIVATE);
-                Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movie), new HashSet<String>());
+                //SharedPreferences sharedPref = getContext().getSharedPreferences("MoviePrefs", getContext().MODE_PRIVATE);
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+                Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movies), new HashSet<String>());
                 Log.v(LOG_TAG, "ids: " + movieIds.toString());
 
                 // Add new Id to the set and save
                 movieIds.add(newId);
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putStringSet(getString(R.string.saved_movie), movieIds);
+                editor.putStringSet(getString(R.string.saved_movies), movieIds);
                 editor.commit();
 
                 Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();

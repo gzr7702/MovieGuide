@@ -3,7 +3,6 @@ package com.gzr7702.movieguide;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.IntegerRes;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,7 +23,6 @@ import com.gzr7702.movieguide.models.Movie;
 import com.gzr7702.movieguide.models.MoviesResponse;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.ArrayList;
@@ -116,26 +114,29 @@ public class MovieFragment extends Fragment {
     */
     private void updateMovieData() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        // TODO: check preferences id
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
         mLatestSortOrder = sortOrder;
         Call<MoviesResponse> call;
 
         if (isOnline()) {
             MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
-            if (sortOrder.contentEquals("favorite")) {
-                // TODO: check that favorite movies is not empty
-                // TODO: make this work
-                Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movie), new HashSet<String>());
+            Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movies), new HashSet<String>());
+            Log.v(LOG_TAG, "ids: " + movieIds.toString());
+            if (sortOrder.contentEquals("favorites") && !movieIds.isEmpty()) {
+                Log.v(LOG_TAG, "sort order " + sortOrder);
 
                 for (String movieId : movieIds) {
                     call = apiService.getMovie(movieId, API_KEY);
                     call.enqueue(new MovieCallback(false));
                 }
             } else if (sortOrder.equals("top_rated")) {
+                Log.v(LOG_TAG, "sort order " + sortOrder);
                 call = apiService.getTopRatedMovies(API_KEY);
                 call.enqueue(new MovieCallback(true));
             } else{
                 // Sort order is popular
+                Log.v(LOG_TAG, "sort order " + sortOrder);
                 call = apiService.getPopularMovies(API_KEY);
                 call.enqueue(new MovieCallback(true));
             }

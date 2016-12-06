@@ -33,5 +33,5 @@
     <string name="review_title" translatable="false">Reviews:</string>
 
     <!-- favorite movie preferences -->
-    <string name="saved_movie" translatable="false">saved_movie</string>
+    <string name="saved_movies" translatable="false">saved_movies</string>
 </resources>
