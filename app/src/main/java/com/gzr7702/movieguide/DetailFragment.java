@@ -37,8 +37,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.R.attr.id;
-
 public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     Movie mMovie;

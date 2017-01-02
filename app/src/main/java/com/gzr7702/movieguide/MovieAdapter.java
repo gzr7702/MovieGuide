@@ -88,7 +88,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         Movie movie = mMovieList.get(position);
 
         holder.bind(movie, mListener);
-
     }
 
     @Override

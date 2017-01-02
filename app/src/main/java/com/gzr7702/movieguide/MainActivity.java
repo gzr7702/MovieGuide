@@ -8,15 +8,22 @@ import android.support.v7.app.AppCompatActivity;
  */
 
 public class MainActivity extends AppCompatActivity {
+    private boolean mTwoPane;
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MovieFragment())
-                    .commit();
+        // TODO: move this to fragment? crashes for tablet because we need to pass in a default movie.
+        if (findViewById(R.id.movie_detail_container) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, new DetailFragment())
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
         }
     }
 

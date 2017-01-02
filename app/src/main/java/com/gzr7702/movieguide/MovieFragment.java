@@ -122,6 +122,7 @@ public class MovieFragment extends Fragment {
         if (isOnline()) {
             MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
             Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movies), new HashSet<String>());
+
             Log.v(LOG_TAG, "ids: " + movieIds.toString());
             if (sortOrder.contentEquals("favorites") && !movieIds.isEmpty()) {
                 Log.v(LOG_TAG, "sort order " + sortOrder);
@@ -159,6 +160,8 @@ public class MovieFragment extends Fragment {
 
         MovieCallback(boolean isList) {
             this.isList = isList;
+            String message = "list? " + isList;
+            Log.v(LOG_TAG, message);
         }
 
         @Override
@@ -168,6 +171,8 @@ public class MovieFragment extends Fragment {
                 if (this.isList == true) {
                     mMovieList = response.body().getResults();
                 } else {
+                    ArrayList<Movie> myResponse = response.body().getResults();
+                    Log.v(LOG_TAG, myResponse.toString());
                     mMovieList.add(response.body().getResults().get(0));
                 }
                 mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),

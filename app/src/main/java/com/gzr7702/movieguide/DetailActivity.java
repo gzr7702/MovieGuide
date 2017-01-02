@@ -4,7 +4,6 @@ package com.gzr7702.movieguide;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -18,7 +17,7 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.movie_detail_container, new com.gzr7702.movieguide.DetailFragment())
+                    .add(R.id.movie_detail_container, new DetailFragment())
                     .commit();
         }
     }
