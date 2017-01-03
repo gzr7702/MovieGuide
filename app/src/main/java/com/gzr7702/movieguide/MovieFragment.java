@@ -127,19 +127,21 @@ public class MovieFragment extends Fragment {
             if (sortOrder.contentEquals("favorites") && !movieIds.isEmpty()) {
                 Log.v(LOG_TAG, "sort order " + sortOrder);
 
+                /*
                 for (String movieId : movieIds) {
                     call = apiService.getMovie(movieId, API_KEY);
                     call.enqueue(new MovieCallback(false));
                 }
+                */
             } else if (sortOrder.equals("top_rated")) {
                 Log.v(LOG_TAG, "sort order " + sortOrder);
                 call = apiService.getTopRatedMovies(API_KEY);
-                call.enqueue(new MovieCallback(true));
+                call.enqueue(new MovieListCallback());
             } else{
                 // Sort order is popular
                 Log.v(LOG_TAG, "sort order " + sortOrder);
                 call = apiService.getPopularMovies(API_KEY);
-                call.enqueue(new MovieCallback(true));
+                call.enqueue(new MovieListCallback());
             }
 
         } else {
@@ -155,26 +157,13 @@ public class MovieFragment extends Fragment {
         * or just one element
      */
 
-    private class MovieCallback implements retrofit2.Callback<MoviesResponse> {
-        public boolean isList;
-
-        MovieCallback(boolean isList) {
-            this.isList = isList;
-            String message = "list? " + isList;
-            Log.v(LOG_TAG, message);
-        }
+    private class MovieListCallback implements retrofit2.Callback<MoviesResponse> {
 
         @Override
         public void onResponse(Call<MoviesResponse> call, Response<MoviesResponse> response) {
             int status = response.code();
             if (status == 200) {
-                if (this.isList == true) {
-                    mMovieList = response.body().getResults();
-                } else {
-                    ArrayList<Movie> myResponse = response.body().getResults();
-                    Log.v(LOG_TAG, myResponse.toString());
-                    mMovieList.add(response.body().getResults().get(0));
-                }
+                mMovieList = response.body().getResults();
                 mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
                         new MovieAdapter.OnItemClickListener() {
                             @Override
