@@ -127,12 +127,26 @@ public class MovieFragment extends Fragment {
             if (sortOrder.contentEquals("favorites") && !movieIds.isEmpty()) {
                 Log.v(LOG_TAG, "sort order " + sortOrder);
 
-                /*
+                // TODO: we need a way to get single movies and create a grid here
                 for (String movieId : movieIds) {
                     call = apiService.getMovie(movieId, API_KEY);
-                    call.enqueue(new MovieCallback(false));
+                    call.enqueue(new MovieCallback());
                 }
+
+                /*
+                mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
+                        new MovieAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(Movie movie) {
+                                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                                        .putExtra("movie", movie);
+                                startActivity(intent);
+                            }
+                        });
+                mRecyclerView.setAdapter(mAdapter);
                 */
+
+
             } else if (sortOrder.equals("top_rated")) {
                 Log.v(LOG_TAG, "sort order " + sortOrder);
                 call = apiService.getTopRatedMovies(API_KEY);
@@ -185,6 +199,29 @@ public class MovieFragment extends Fragment {
             Log.e(LOG_TAG, t.toString());
         }
     }
+
+    private class MovieCallback implements retrofit2.Callback<MoviesResponse> {
+
+        @Override
+        public void onResponse(Call<MoviesResponse> call, Response<MoviesResponse> response) {
+            int status = response.code();
+            if (status == 200) {
+                mMovieList = response.body().getResults();
+                Log.v(LOG_TAG, mMovieList.toString());
+                //mMovieList.add(movie);
+
+            } else {
+                String errorMessadge = "We couldn't reach the interwebs, please check your connection";
+                Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        public void onFailure(Call<MoviesResponse> call, Throwable t) {
+            Log.e(LOG_TAG, t.toString());
+        }
+    }
+
 
     public boolean isOnline() {
         ConnectivityManager cm =
