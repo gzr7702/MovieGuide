@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.gzr7702.movieguide.models.Movie;
 import com.gzr7702.movieguide.models.Review;
 import com.gzr7702.movieguide.models.ReviewResponse;
@@ -36,6 +37,8 @@ import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
@@ -89,22 +92,16 @@ public class DetailFragment extends Fragment {
                 .placeholder(R.drawable.placeholder)
                 .into(posterView);
 
-        // Callback used to save favorite movie IDs
+        // Callback used to save favorite movie
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String newId = new Integer(mMovie.getID()).toString();
-
-                // Get saved set of movie ids
-                //SharedPreferences sharedPref = getContext().getSharedPreferences("MoviePrefs", getContext().MODE_PRIVATE);
-                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-                Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movies), new HashSet<String>());
-                Log.v(LOG_TAG, "ids: " + movieIds.toString());
-
-                // Add new Id to the set and save
-                movieIds.add(newId);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putStringSet(getString(R.string.saved_movies), movieIds);
+                final String SAVED_MOVIES = getString(R.string.saved_movies);
+                SharedPreferences.Editor editor = getContext().getSharedPreferences(
+                        SAVED_MOVIES, MODE_PRIVATE).edit();
+                Gson gson = new Gson();
+                String json = gson.toJson(mMovie);
+                editor.putString(SAVED_MOVIES, json);
                 editor.commit();
 
                 Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
