@@ -30,6 +30,7 @@ import com.gzr7702.movieguide.models.Video;
 import com.gzr7702.movieguide.models.VideoResponse;
 import com.squareup.picasso.Picasso;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -97,12 +98,20 @@ public class DetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 final String SAVED_MOVIES = getString(R.string.saved_movies);
-                SharedPreferences.Editor editor = getContext().getSharedPreferences(
-                        SAVED_MOVIES, MODE_PRIVATE).edit();
+
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+                Set<String> movies = sharedPref.getStringSet(getString(R.string.saved_movies), new HashSet<String>());
+                Log.v(LOG_TAG, "saved movies: " + movies.toString());
+
+                // Add new movie to the set and save
                 Gson gson = new Gson();
-                String json = gson.toJson(mMovie);
-                editor.putString(SAVED_MOVIES, json);
+                String movieJSON = gson.toJson(mMovie);
+                movies.add(movieJSON);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putStringSet(getString(R.string.saved_movies), movies);
+
                 editor.commit();
+                Log.v(LOG_TAG, mMovie.getTitle());
 
                 Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
             }

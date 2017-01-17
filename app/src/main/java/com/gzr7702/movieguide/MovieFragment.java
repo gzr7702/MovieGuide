@@ -19,15 +19,21 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import android.support.v7.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.gzr7702.movieguide.models.Movie;
 import com.gzr7702.movieguide.models.MoviesResponse;
 
 import retrofit2.Call;
 import retrofit2.Response;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Fragment that displays page of movie posters, nested within MainActivity
@@ -121,20 +127,20 @@ public class MovieFragment extends Fragment {
 
         if (isOnline()) {
             MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
-            Set<String> movieIds = sharedPref.getStringSet(getString(R.string.saved_movies), new HashSet<String>());
+            String movieJSONString = getActivity().getPreferences(MODE_PRIVATE)
+                    .getString(getString(R.string.saved_movies), null);
 
-            Log.v(LOG_TAG, "ids: " + movieIds.toString());
-            if (sortOrder.contentEquals("favorites") && !movieIds.isEmpty()) {
-                Log.v(LOG_TAG, "sort order " + sortOrder);
+            if (sortOrder.contentEquals("favorites") && movieJSONString != null) {
+                Log.v(LOG_TAG, "favorites? " + sortOrder);
 
-                // TODO: we need a way to get single movies and create a grid here
-                for (String movieId : movieIds) {
-                    call = apiService.getMovie(movieId, API_KEY);
-                    call.enqueue(new MovieCallback());
-                }
+                // TODO: fix me =============================================================
+                Type type = new TypeToken<List< Movie >>() {}.getType();
+                List < Movie > movies = new Gson().fromJson(movieJSONString, type);
+                Log.v(LOG_TAG, "movie json: " + movies.toString());
+                //Log.v(LOG_TAG, "favs: " + mMovieList.toString());
 
                 /*
-                mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
+                mAdapter = new MovieAdapter(movies, R.layout.movie_cell, getContext(),
                         new MovieAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(Movie movie) {
@@ -148,14 +154,14 @@ public class MovieFragment extends Fragment {
 
 
             } else if (sortOrder.equals("top_rated")) {
-                Log.v(LOG_TAG, "sort order " + sortOrder);
+                Log.v(LOG_TAG, "top rated? " + sortOrder);
                 call = apiService.getTopRatedMovies(API_KEY);
-                call.enqueue(new MovieListCallback());
+                call.enqueue(new MovieCallback());
             } else{
                 // Sort order is popular
-                Log.v(LOG_TAG, "sort order " + sortOrder);
+                Log.v(LOG_TAG, "popular? " + sortOrder);
                 call = apiService.getPopularMovies(API_KEY);
-                call.enqueue(new MovieListCallback());
+                call.enqueue(new MovieCallback());
             }
 
         } else {
@@ -171,7 +177,7 @@ public class MovieFragment extends Fragment {
         * or just one element
      */
 
-    private class MovieListCallback implements retrofit2.Callback<MoviesResponse> {
+    private class MovieCallback implements retrofit2.Callback<MoviesResponse> {
 
         @Override
         public void onResponse(Call<MoviesResponse> call, Response<MoviesResponse> response) {
@@ -199,29 +205,6 @@ public class MovieFragment extends Fragment {
             Log.e(LOG_TAG, t.toString());
         }
     }
-
-    private class MovieCallback implements retrofit2.Callback<MoviesResponse> {
-
-        @Override
-        public void onResponse(Call<MoviesResponse> call, Response<MoviesResponse> response) {
-            int status = response.code();
-            if (status == 200) {
-                mMovieList = response.body().getResults();
-                Log.v(LOG_TAG, mMovieList.toString());
-                //mMovieList.add(movie);
-
-            } else {
-                String errorMessadge = "We couldn't reach the interwebs, please check your connection";
-                Toast.makeText(getContext(), errorMessadge, Toast.LENGTH_LONG).show();
-            }
-        }
-
-        @Override
-        public void onFailure(Call<MoviesResponse> call, Throwable t) {
-            Log.e(LOG_TAG, t.toString());
-        }
-    }
-
 
     public boolean isOnline() {
         ConnectivityManager cm =
