@@ -30,16 +30,13 @@ import com.gzr7702.movieguide.models.Video;
 import com.gzr7702.movieguide.models.VideoResponse;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Type;
+import org.json.JSONArray;
+
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
@@ -61,7 +58,7 @@ public class DetailFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
@@ -97,21 +94,33 @@ public class DetailFragment extends Fragment {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String SAVED_MOVIES = getString(R.string.saved_movies);
-
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-                Set<String> movies = sharedPref.getStringSet(getString(R.string.saved_movies), new HashSet<String>());
-                Log.v(LOG_TAG, "saved movies: " + movies.toString());
+                // Get json of saved movies
+                String savedMovies = sharedPref.getString(getString(R.string.saved_movies), "");
 
-                // Add new movie to the set and save
+                // Convert new movie to json
                 Gson gson = new Gson();
-                String movieJSON = gson.toJson(mMovie);
-                movies.add(movieJSON);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putStringSet(getString(R.string.saved_movies), movies);
+                String newMovieJSON = gson.toJson(mMovie);
 
-                editor.commit();
-                Log.v(LOG_TAG, mMovie.getTitle());
+                if (savedMovies.isEmpty()) {
+                    // save lone movie
+                    savedMovies = newMovieJSON;
+                } else {
+                    // turn saved movies from json to jsonArray
+                    JSONArray savedMovieJSONArray = new JSONArray();
+                    // TODO: check if movie is already saved
+                    //add new movie to all movies
+                    savedMovieJSONArray.put(savedMovies);
+                    savedMovieJSONArray.put(newMovieJSON);
+                    // stash all movies back in one json object
+                    savedMovies = savedMovieJSONArray.toString();
+                }
+
+                // Stash the new json movie list
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(getString(R.string.saved_movies), savedMovies);
+                editor.apply();
+                Log.v(LOG_TAG, savedMovies);
 
                 Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
             }

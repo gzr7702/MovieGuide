@@ -127,20 +127,17 @@ public class MovieFragment extends Fragment {
 
         if (isOnline()) {
             MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
-            String movieJSONString = getActivity().getPreferences(MODE_PRIVATE)
-                    .getString(getString(R.string.saved_movies), null);
+            String moviesJSON  = sharedPref.getString(getString(R.string.saved_movies), "");
+            Log.v(LOG_TAG, "saved movies: " + moviesJSON.toString());
 
-            if (sortOrder.contentEquals("favorites") && movieJSONString != null) {
+            if (sortOrder.contentEquals("favorites") && moviesJSON != null) {
                 Log.v(LOG_TAG, "favorites? " + sortOrder);
-
-                // TODO: fix me =============================================================
-                Type type = new TypeToken<List< Movie >>() {}.getType();
-                List < Movie > movies = new Gson().fromJson(movieJSONString, type);
-                Log.v(LOG_TAG, "movie json: " + movies.toString());
-                //Log.v(LOG_TAG, "favs: " + mMovieList.toString());
-
                 /*
-                mAdapter = new MovieAdapter(movies, R.layout.movie_cell, getContext(),
+
+                Gson gson = new Gson();
+                ArrayList < Movie > mMovieList = gson.fromJson(moviesJSON, type);
+
+                mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
                         new MovieAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(Movie movie) {
