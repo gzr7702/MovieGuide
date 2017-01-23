@@ -108,12 +108,13 @@ public class DetailFragment extends Fragment {
                 } else {
                     // turn saved movies from json to jsonArray
                     JSONArray savedMovieJSONArray = new JSONArray();
-                    // TODO: check if movie is already saved
-                    //add new movie to all movies
-                    savedMovieJSONArray.put(savedMovies);
-                    savedMovieJSONArray.put(newMovieJSON);
-                    // stash all movies back in one json object
-                    savedMovies = savedMovieJSONArray.toString();
+                    if (!savedMovies.contains(mMovie.getTitle())) {
+                        //add new movie to all movies
+                        savedMovieJSONArray.put(savedMovies);
+                        savedMovieJSONArray.put(newMovieJSON);
+                        // stash all movies back in one json object
+                        savedMovies = savedMovieJSONArray.toString();
+                    }
                 }
 
                 // Stash the new json movie list
