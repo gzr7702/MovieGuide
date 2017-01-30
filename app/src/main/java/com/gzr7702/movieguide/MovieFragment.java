@@ -132,11 +132,12 @@ public class MovieFragment extends Fragment {
 
             if (sortOrder.contentEquals("favorites") && moviesJSON != null) {
                 Log.v(LOG_TAG, "favorites? " + sortOrder);
-                /*
 
                 Gson gson = new Gson();
-                ArrayList < Movie > mMovieList = gson.fromJson(moviesJSON, type);
+                Type type = new TypeToken<ArrayList<Movie>>(){}.getType();
+                mMovieList = gson.fromJson(moviesJSON, type);
 
+                /*
                 mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
                         new MovieAdapter.OnItemClickListener() {
                             @Override
@@ -148,7 +149,6 @@ public class MovieFragment extends Fragment {
                         });
                 mRecyclerView.setAdapter(mAdapter);
                 */
-
 
             } else if (sortOrder.equals("top_rated")) {
                 Log.v(LOG_TAG, "top rated? " + sortOrder);

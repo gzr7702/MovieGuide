@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.gzr7702.movieguide.models.Movie;
 import com.gzr7702.movieguide.models.Review;
 import com.gzr7702.movieguide.models.ReviewResponse;
@@ -31,12 +32,17 @@ import com.gzr7702.movieguide.models.VideoResponse;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
@@ -94,34 +100,34 @@ public class DetailFragment extends Fragment {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ArrayList<Movie> movieList;
+
+                // get prefs in json
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-                // Get json of saved movies
-                String savedMovies = sharedPref.getString(getString(R.string.saved_movies), "");
+                String moviesJSON = sharedPref.getString(getString(R.string.saved_movies), "");
 
-                // Convert new movie to json
-                Gson gson = new Gson();
-                String newMovieJSON = gson.toJson(mMovie);
-
-                if (savedMovies.isEmpty()) {
-                    // save lone movie
-                    savedMovies = newMovieJSON;
+                // TODO: add check fro duplicates
+                if (!moviesJSON.isEmpty()) {
+                    // convert list from JSON back to movie list
+                    Type type = new TypeToken<ArrayList<Movie>>() {
+                    }.getType();
+                    movieList = new Gson().fromJson(moviesJSON, type);
                 } else {
-                    // turn saved movies from json to jsonArray
-                    JSONArray savedMovieJSONArray = new JSONArray();
-                    if (!savedMovies.contains(mMovie.getTitle())) {
-                        //add new movie to all movies
-                        savedMovieJSONArray.put(savedMovies);
-                        savedMovieJSONArray.put(newMovieJSON);
-                        // stash all movies back in one json object
-                        savedMovies = savedMovieJSONArray.toString();
-                    }
+                    // make a new movie list
+                    movieList = new ArrayList<Movie>();
                 }
+
+                // add new movie movie list
+                movieList.add(mMovie);
+
+                // convert back to JSON String
+                moviesJSON = new Gson().toJson(movieList);
 
                 // Stash the new json movie list
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString(getString(R.string.saved_movies), savedMovies);
+                editor.putString(getString(R.string.saved_movies), moviesJSON);
                 editor.apply();
-                Log.v(LOG_TAG, savedMovies);
+                Log.v(LOG_TAG, moviesJSON.toString());
 
                 Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
             }
