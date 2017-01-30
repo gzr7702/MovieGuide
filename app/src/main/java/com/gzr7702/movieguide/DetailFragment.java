@@ -101,35 +101,37 @@ public class DetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ArrayList<Movie> movieList;
-
                 // get prefs in json
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
                 String moviesJSON = sharedPref.getString(getString(R.string.saved_movies), "");
 
-                // TODO: add check fro duplicates
-                if (!moviesJSON.isEmpty()) {
-                    // convert list from JSON back to movie list
-                    Type type = new TypeToken<ArrayList<Movie>>() {
-                    }.getType();
-                    movieList = new Gson().fromJson(moviesJSON, type);
+                if (!moviesJSON.contains(mMovie.getTitle())) {
+
+                    if (!moviesJSON.isEmpty()) {
+                        // convert list from JSON back to movie list
+                        Type type = new TypeToken<ArrayList<Movie>>() {
+                        }.getType();
+                        movieList = new Gson().fromJson(moviesJSON, type);
+                    } else {
+                        // make a new movie list
+                        movieList = new ArrayList<Movie>();
+                    }
+
+                    // add new movie movie list
+                    movieList.add(mMovie);
+                    // convert back to JSON String
+                    moviesJSON = new Gson().toJson(movieList);
+
+                    // Stash the new json movie list
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(getString(R.string.saved_movies), moviesJSON);
+                    editor.apply();
+                    Log.v(LOG_TAG, moviesJSON.toString());
+
+                    Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
                 } else {
-                    // make a new movie list
-                    movieList = new ArrayList<Movie>();
+                    Toast.makeText(getContext(), mMovie.getTitle() + " is already a favorite", Toast.LENGTH_SHORT).show();
                 }
-
-                // add new movie movie list
-                movieList.add(mMovie);
-
-                // convert back to JSON String
-                moviesJSON = new Gson().toJson(movieList);
-
-                // Stash the new json movie list
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString(getString(R.string.saved_movies), moviesJSON);
-                editor.apply();
-                Log.v(LOG_TAG, moviesJSON.toString());
-
-                Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
             }
         });
 
