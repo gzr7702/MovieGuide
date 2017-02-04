@@ -29,11 +29,6 @@ import retrofit2.Response;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Fragment that displays page of movie posters, nested within MainActivity
@@ -54,8 +49,6 @@ public class MovieFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        updateMovieData();
         setHasOptionsMenu(true);
     }
 
@@ -69,16 +62,17 @@ public class MovieFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        mRecyclerView.setLayoutManager(layoutManager);
+
         if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
             updateMovieData();
         } else {
             mMovieList = savedInstanceState.getParcelableArrayList("movies");
         }
 
-        View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
-        mRecyclerView.setLayoutManager(layoutManager);
 
         return rootView;
     }
@@ -130,14 +124,15 @@ public class MovieFragment extends Fragment {
             String moviesJSON  = sharedPref.getString(getString(R.string.saved_movies), "");
             Log.v(LOG_TAG, "saved movies: " + moviesJSON.toString());
 
+            // TODO: if favorites works only after app is started, not on startup
             if (sortOrder.contentEquals("favorites") && moviesJSON != null) {
                 Log.v(LOG_TAG, "favorites? " + sortOrder);
 
                 Gson gson = new Gson();
                 Type type = new TypeToken<ArrayList<Movie>>(){}.getType();
                 mMovieList = gson.fromJson(moviesJSON, type);
+                Log.v(LOG_TAG, mMovieList.toString());
 
-                /*
                 mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
                         new MovieAdapter.OnItemClickListener() {
                             @Override
@@ -148,7 +143,6 @@ public class MovieFragment extends Fragment {
                             }
                         });
                 mRecyclerView.setAdapter(mAdapter);
-                */
 
             } else if (sortOrder.equals("top_rated")) {
                 Log.v(LOG_TAG, "top rated? " + sortOrder);
