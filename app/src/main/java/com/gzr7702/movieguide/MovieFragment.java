@@ -124,7 +124,6 @@ public class MovieFragment extends Fragment {
             String moviesJSON  = sharedPref.getString(getString(R.string.saved_movies), "");
             Log.v(LOG_TAG, "saved movies: " + moviesJSON.toString());
 
-            // TODO: if favorites works only after app is started, not on startup
             if (sortOrder.contentEquals("favorites") && moviesJSON != null) {
                 Log.v(LOG_TAG, "favorites? " + sortOrder);
 
@@ -133,6 +132,7 @@ public class MovieFragment extends Fragment {
                 mMovieList = gson.fromJson(moviesJSON, type);
                 Log.v(LOG_TAG, mMovieList.toString());
 
+                // TODO: nedd default movie for tablet ======================================
                 mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
                         new MovieAdapter.OnItemClickListener() {
                             @Override
