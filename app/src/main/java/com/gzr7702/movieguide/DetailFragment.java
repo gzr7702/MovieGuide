@@ -2,10 +2,12 @@ package com.gzr7702.movieguide;
 
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -22,8 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.gzr7702.movieguide.data.MovieContract.MovieEntry;
+import com.gzr7702.movieguide.data.MovieDbHelper;
 import com.gzr7702.movieguide.models.Movie;
 import com.gzr7702.movieguide.models.Review;
 import com.gzr7702.movieguide.models.ReviewResponse;
@@ -31,7 +33,6 @@ import com.gzr7702.movieguide.models.Video;
 import com.gzr7702.movieguide.models.VideoResponse;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -97,7 +98,25 @@ public class DetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                // TODO: change ot use DB
+                // TODO: change to use content provider
+
+                // TODO: check DB for duplicate
+
+                MovieDbHelper mMovieDbHelper;
+                mMovieDbHelper = new MovieDbHelper(getContext());
+                SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
+
+                ContentValues values = new ContentValues();
+                values.put(MovieEntry.COLUMN_TITLE, mMovie.getTitle());
+                values.put(MovieEntry.COLUMN_POSTER_PATH, mMovie.getPosterPath());
+                values.put(MovieEntry.COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
+                values.put(MovieEntry.COLUMN_RATING, mMovie.getVoteAverage());
+                values.put(MovieEntry.COLUMN_PLOT_SUMMARY, mMovie.getOverview());
+
+                db.insert(MovieEntry.TABLE_NAME, null, values);
+                Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
+
+                /*
                 ArrayList<Movie> movieList;
                 // get prefs in json
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -130,6 +149,7 @@ public class DetailFragment extends Fragment {
                 } else {
                     Toast.makeText(getContext(), mMovie.getTitle() + " is already a favorite", Toast.LENGTH_SHORT).show();
                 }
+                */
             }
         });
 
@@ -142,7 +162,7 @@ public class DetailFragment extends Fragment {
             String movieId = Integer.toString(mMovie.getID());
             videoCall = apiService.getVideo(movieId, API_KEY);
 
-            // TODO: separate out callback
+            // Video callback
             videoCall.enqueue(new Callback<VideoResponse>() {
                 @Override
                 public void onResponse(Call<VideoResponse> videoCall, Response<VideoResponse> response) {
@@ -183,7 +203,7 @@ public class DetailFragment extends Fragment {
             Call<ReviewResponse> reviewCall;
             reviewCall = apiService.getReview(movieId, API_KEY);
 
-            // TODO: separate out callback
+            // Review callback
             reviewCall.enqueue(new Callback<ReviewResponse>() {
                 @Override
                 public void onResponse(Call<ReviewResponse> reviewCall, Response<ReviewResponse> response) {
