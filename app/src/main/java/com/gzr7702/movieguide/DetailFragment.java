@@ -52,20 +52,9 @@ public class DetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle onSavedInstanceState) {
         super.onCreate(onSavedInstanceState);
-        if (onSavedInstanceState != null) {
-            Intent intent = getActivity().getIntent();
-            mMovie = intent.getExtras().getParcelable("movie");
-        } else {
-            // Fake movie object for tablet detail view =======================================================
-            String posterPath = "/z4x0Bp48ar3Mda8KiPD1vwSY3D8.jpg";
-            String overview = "This is dummy data for troubleshooting the detail view of a tablet. Please don't think this is real.";
-            String releaseDate = "2016-11-23";
-            int id = 277834;
-            String title = "Fake Moana";
-            Double voterAverage = 6.5;
-            mMovie = new Movie(posterPath, overview, releaseDate, id, title, voterAverage);
-            // =============================================================================================
-        }
+        // TODO: app is dying on tablet on rotation
+        Intent intent = getActivity().getIntent();
+        mMovie = intent.getExtras().getParcelable("movie");
 
     }
 
@@ -263,6 +252,12 @@ public class DetailFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("movieDetail", mMovie);
     }
 
     /*

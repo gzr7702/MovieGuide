@@ -73,7 +73,6 @@ public class MovieFragment extends Fragment {
             mMovieList = savedInstanceState.getParcelableArrayList("movies");
         }
 
-
         return rootView;
     }
 
