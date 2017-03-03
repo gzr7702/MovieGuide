@@ -124,8 +124,8 @@ public class MovieFragment extends Fragment {
             Log.v(LOG_TAG, "saved movies: " + moviesJSON.toString());
 
             if (sortOrder.contentEquals("favorites") && moviesJSON != null) {
-                Log.v(LOG_TAG, "favorites? " + sortOrder);
 
+                // TODO: use DB here, not prefs
                 Gson gson = new Gson();
                 Type type = new TypeToken<ArrayList<Movie>>(){}.getType();
                 mMovieList = gson.fromJson(moviesJSON, type);

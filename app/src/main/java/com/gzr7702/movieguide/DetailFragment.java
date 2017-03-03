@@ -96,6 +96,8 @@ public class DetailFragment extends Fragment {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // TODO: change ot use DB
                 ArrayList<Movie> movieList;
                 // get prefs in json
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -131,11 +133,11 @@ public class DetailFragment extends Fragment {
             }
         });
 
-        // Fetch video links and
-        // call intent to start youtube app or use the web
-        Call<VideoResponse> videoCall;
-
         if (isOnline()) {
+            // Fetch video links and
+            // call intent to start youtube app or use the web
+            Call<VideoResponse> videoCall;
+
             MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
             String movieId = Integer.toString(mMovie.getID());
             videoCall = apiService.getVideo(movieId, API_KEY);
@@ -176,18 +178,9 @@ public class DetailFragment extends Fragment {
                     Log.e(LOG_TAG, t.toString());
                 }
             });
-        } else {
-            String message = "Sorry, the internet is unreachable. " + "" +
-                    "Please check you're connection and try again!";
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-        }
 
-        // Fetch reviews and create list
-        Call<ReviewResponse> reviewCall;
-
-        if (isOnline()) {
-            MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
-            String movieId = new Integer(mMovie.getID()).toString();
+            // Fetch reviews and create list
+            Call<ReviewResponse> reviewCall;
             reviewCall = apiService.getReview(movieId, API_KEY);
 
             // TODO: separate out callback
