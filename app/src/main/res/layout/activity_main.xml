@@ -1,11 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/container"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
+              tools:context="com.gzr7702.movieguide.MainActivity">
 
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          android:id="@+id/fragment_forecast"
-          android:name="com.gzr7702.movieguide.MovieFragment"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:layout_marginLeft="16dp"
-          android:layout_marginRight="16dp"
-          tools:context="com.gzr7702.movieguide.MovieFragment"
-          tools:layout="@android:layout/list_content" />
+</LinearLayout>
