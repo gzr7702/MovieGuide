@@ -4,7 +4,7 @@
     <string name="title_activity_settings" translatable="false">MovieGuide</string>
 
     <string name="title_activity_detail">MovieDetail</string>
-    <string name="button_activity_detail">"Mark as\nfavorite"</string>
+    <string name="button_activity_detail">"Add/Delete\nas favorite"</string>
 
     <!-- Label for the sort order preference -->
     <string name="pref_sort_order_label">Sort By</string>

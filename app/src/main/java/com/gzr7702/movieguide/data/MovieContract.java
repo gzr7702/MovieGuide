@@ -1,6 +1,7 @@
 
 package com.gzr7702.movieguide.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 
@@ -9,9 +10,19 @@ import android.provider.BaseColumns;
  */
 public class MovieContract {
 
+    public static final String AUTHORITY = "com.gzr7702.movieguide";
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final String PATH_MOVIES = "movies";
+
+    private MovieContract() {}
+
     //   Inner class that defines the contents of the movie table
     public static final class MovieEntry implements BaseColumns {
 
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI
+                .buildUpon().appendPath(PATH_MOVIES).build();
+
+        public static final String COLUMN_ID = "id";
         public static final String TABLE_NAME = "movies";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_POSTER_PATH = "poster_path";

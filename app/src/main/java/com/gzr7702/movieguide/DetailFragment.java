@@ -1,5 +1,6 @@
 package com.gzr7702.movieguide;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -24,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gzr7702.movieguide.data.MovieContract;
 import com.gzr7702.movieguide.data.MovieContract.MovieEntry;
 import com.gzr7702.movieguide.data.MovieDbHelper;
 import com.gzr7702.movieguide.models.Movie;
@@ -34,6 +37,7 @@ import com.gzr7702.movieguide.models.VideoResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,6 +58,7 @@ public class DetailFragment extends Fragment {
     public void onCreate(Bundle onSavedInstanceState) {
         super.onCreate(onSavedInstanceState);
         // TODO: app is dying on tablet on rotation
+        // TODO: pull from
         Intent intent = getActivity().getIntent();
         mMovie = intent.getExtras().getParcelable("movie");
 
@@ -92,64 +97,54 @@ public class DetailFragment extends Fragment {
                 .load(mImageUrl)
                 .placeholder(R.drawable.placeholder)
                 .into(posterView);
-
         // Callback used to save favorite movie
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                // TODO: change to use content provider
-
-                // TODO: check DB for duplicate
-
-                MovieDbHelper mMovieDbHelper;
-                mMovieDbHelper = new MovieDbHelper(getContext());
-                SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
-
                 ContentValues values = new ContentValues();
+                values.put(MovieEntry.COLUMN_ID, mMovie.getID());
                 values.put(MovieEntry.COLUMN_TITLE, mMovie.getTitle());
                 values.put(MovieEntry.COLUMN_POSTER_PATH, mMovie.getPosterPath());
                 values.put(MovieEntry.COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
                 values.put(MovieEntry.COLUMN_RATING, mMovie.getVoteAverage());
                 values.put(MovieEntry.COLUMN_PLOT_SUMMARY, mMovie.getOverview());
 
-                db.insert(MovieEntry.TABLE_NAME, null, values);
-                Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
+                Activity movieActivity = getActivity();
+                String[] movieId= {Integer.toString(mMovie.getID())};
+                String[] idColumn = {MovieEntry.COLUMN_ID};
 
-                /*
-                ArrayList<Movie> movieList;
-                // get prefs in json
-                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-                String moviesJSON = sharedPref.getString(getString(R.string.saved_movies), "");
+                // TODO: move to Asynctask?
 
-                if (!moviesJSON.contains(mMovie.getTitle())) {
+                // Query for title, insert if not found, otherwise, delete
+                Cursor cursor = movieActivity.getContentResolver().query(MovieEntry.CONTENT_URI,
+                        idColumn,
+                        MovieEntry.COLUMN_ID + "=?",
+                        movieId,
+                        "");
 
-                    if (!moviesJSON.isEmpty()) {
-                        // convert list from JSON back to movie list
-                        Type type = new TypeToken<ArrayList<Movie>>() {
-                        }.getType();
-                        movieList = new Gson().fromJson(moviesJSON, type);
-                    } else {
-                        // make a new movie list
-                        movieList = new ArrayList<Movie>();
+                Uri uri = null;
+                int rowsDeleted = 0;
+
+                if (!(cursor.moveToFirst()) || cursor.getCount() ==0) {
+                    uri = movieActivity.getContentResolver().insert(MovieEntry.CONTENT_URI, values);
+                    if (uri != null) {
+                        Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
                     }
-
-                    // add new movie movie list
-                    movieList.add(mMovie);
-                    // convert back to JSON String
-                    moviesJSON = new Gson().toJson(movieList);
-
-                    // Stash the new json movie list
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString(getString(R.string.saved_movies), moviesJSON);
-                    editor.apply();
-                    Log.v(LOG_TAG, moviesJSON.toString());
-
-                    Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getContext(), mMovie.getTitle() + " is already a favorite", Toast.LENGTH_SHORT).show();
+                    rowsDeleted = movieActivity.getContentResolver().delete(
+                            // TODO: problem here w/URI
+                        MovieEntry.CONTENT_URI,
+                        MovieEntry.COLUMN_ID + "=?",
+                        movieId);
+                    if (rowsDeleted == 1) {
+                        Toast.makeText(getContext(), "Deleted " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
+                    }
                 }
-                */
+                cursor.close();
+
+
+                movieActivity.finish();
             }
         });
 

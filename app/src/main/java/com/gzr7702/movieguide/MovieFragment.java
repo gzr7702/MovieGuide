@@ -1,8 +1,11 @@
 package com.gzr7702.movieguide;
 
+import android.app.Activity;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +24,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.gzr7702.movieguide.data.MovieContract;
 import com.gzr7702.movieguide.models.Movie;
 import com.gzr7702.movieguide.models.MoviesResponse;
 
@@ -118,20 +122,42 @@ public class MovieFragment extends Fragment {
         mLatestSortOrder = sortOrder;
         Call<MoviesResponse> call;
 
-        if (isOnline()) {
             MovieApiInterface apiService = MovieApiClient.getClient().create(MovieApiInterface.class);
-            String moviesJSON  = sharedPref.getString(getString(R.string.saved_movies), "");
-            Log.v(LOG_TAG, "saved movies: " + moviesJSON.toString());
 
-            if (sortOrder.contentEquals("favorites") && moviesJSON != null) {
-
-                // TODO: use DB here, not prefs
-                Gson gson = new Gson();
-                Type type = new TypeToken<ArrayList<Movie>>(){}.getType();
-                mMovieList = gson.fromJson(moviesJSON, type);
+            if (sortOrder.contentEquals("favorites")) {
+                Activity movieActivity = getActivity();
+                String[] posterPaths = {MovieContract.MovieEntry.COLUMN_POSTER_PATH};
+                Cursor cursor = movieActivity.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null);
                 Log.v(LOG_TAG, mMovieList.toString());
+                // TODO: Need to iterate through cursor and build movie list
 
-                // TODO: nedd default movie for tablet ======================================
+                try {
+                    int movieIdIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID);
+                    int titleIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE);
+                    int pathIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
+                    int plotIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_PLOT_SUMMARY);
+                    int ratingIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RATING);
+                    int releaseIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
+
+                    while (cursor.moveToNext()) {
+                        int movieId = new Integer(cursor.getString(movieIdIndex));
+                        String title = cursor.getString(titleIndex);
+                        String posterPath = cursor.getString(pathIndex);
+                        String plot = cursor.getString(plotIndex);
+                        Double rating = new Double(cursor.getString(ratingIndex));
+                        String releaseDate = cursor.getString(releaseIndex);
+                        mMovieList.add(new Movie(posterPath, plot, releaseDate, movieId, title, rating));
+                    }
+
+                } finally {
+                    cursor.close();
+                }
+
+                // TODO: need default movie for tablet ======================================
                 mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
                         new MovieAdapter.OnItemClickListener() {
                             @Override
@@ -144,21 +170,27 @@ public class MovieFragment extends Fragment {
                 mRecyclerView.setAdapter(mAdapter);
 
             } else if (sortOrder.equals("top_rated")) {
-                Log.v(LOG_TAG, "top rated? " + sortOrder);
-                call = apiService.getTopRatedMovies(API_KEY);
-                call.enqueue(new MovieCallback());
+                if (!isOnline()) {
+                    String message = "Sorry, the internet is unreachable. " + "" +
+                            "Please check you're connection and try again!";
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                } else {
+                    Log.v(LOG_TAG, "top rated? " + sortOrder);
+                    call = apiService.getTopRatedMovies(API_KEY);
+                    call.enqueue(new MovieCallback());
+                }
             } else{
                 // Sort order is popular
-                Log.v(LOG_TAG, "popular? " + sortOrder);
-                call = apiService.getPopularMovies(API_KEY);
-                call.enqueue(new MovieCallback());
+                if (!isOnline()) {
+                    String message = "Sorry, the internet is unreachable. " + "" +
+                            "Please check you're connection and try again!";
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                } else {
+                    Log.v(LOG_TAG, "popular? " + sortOrder);
+                    call = apiService.getPopularMovies(API_KEY);
+                    call.enqueue(new MovieCallback());
+                }
             }
-
-        } else {
-            String message = "Sorry, the internet is unreachable. " + "" +
-                    "Please check you're connection and try again!";
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-        }
     }
 
     /*

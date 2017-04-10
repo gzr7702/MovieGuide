@@ -34,6 +34,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.gzr7702.movieguide.MainActivity" />
         </activity>
+        <provider
+            android:authorities="com.gzr7702.movieguide"
+            android:name="com.gzr7702.movieguide.data.MovieProvider"
+            android:exported="false" />
     </application>
 
 </manifest>

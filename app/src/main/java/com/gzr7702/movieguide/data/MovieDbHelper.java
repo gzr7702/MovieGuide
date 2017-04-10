@@ -13,7 +13,7 @@ import com.gzr7702.movieguide.data.MovieContract.MovieEntry;
 public class MovieDbHelper extends SQLiteOpenHelper {
 
     private String LOG_TAG = MovieDbHelper.class.getSimpleName();
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     static final String DATABASE_NAME = "movie.db";
 
@@ -25,7 +25,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-                MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                // We use the movie id instead of an auto id
+                MovieEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
 
                 MovieEntry.COLUMN_TITLE + " REAL NOT NULL, " +
                 MovieEntry.COLUMN_POSTER_PATH + " REAL NOT NULL, " +
