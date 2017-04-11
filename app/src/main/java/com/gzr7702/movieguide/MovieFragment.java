@@ -43,7 +43,7 @@ public class MovieFragment extends Fragment {
     private final String API_KEY = Info.getKey();
     private String mLatestSortOrder = null;
     private RecyclerView mRecyclerView;
-    private ArrayList<Movie> mMovieList;
+    private ArrayList<Movie> mMovieList = new ArrayList<>();
 
     private MovieAdapter mAdapter;
 
@@ -132,7 +132,6 @@ public class MovieFragment extends Fragment {
                         null,
                         null,
                         null);
-                Log.v(LOG_TAG, mMovieList.toString());
                 // TODO: Need to iterate through cursor and build movie list
 
                 try {
@@ -143,6 +142,7 @@ public class MovieFragment extends Fragment {
                     int ratingIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RATING);
                     int releaseIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
 
+                    mMovieList.clear();
                     while (cursor.moveToNext()) {
                         int movieId = new Integer(cursor.getString(movieIdIndex));
                         String title = cursor.getString(titleIndex);
