@@ -43,6 +43,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.gzr7702.movieguide.data.MovieContract.BASE_CONTENT_URI;
+import static com.gzr7702.movieguide.data.MovieContract.MovieEntry.CONTENT_URI;
+
 public class DetailFragment extends Fragment {
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     Movie mMovie;
@@ -111,32 +114,35 @@ public class DetailFragment extends Fragment {
                 values.put(MovieEntry.COLUMN_PLOT_SUMMARY, mMovie.getOverview());
 
                 Activity movieActivity = getActivity();
-                String[] movieId= {Integer.toString(mMovie.getID())};
+                int movieId= mMovie.getID();
+                String[] idArray = {Integer.toString(movieId)};
                 String[] idColumn = {MovieEntry.COLUMN_ID};
+                Uri queryUri = MovieEntry.CONTENT_URI;
+                queryUri.buildUpon().appendPath("" + movieId).build();
 
-                // TODO: move to Asynctask?
+                // TODO: move to Asynctask
 
                 // Query for title, insert if not found, otherwise, delete
-                Cursor cursor = movieActivity.getContentResolver().query(MovieEntry.CONTENT_URI,
+                Cursor cursor = movieActivity.getContentResolver().query(queryUri,
                         idColumn,
                         MovieEntry.COLUMN_ID + "=?",
-                        movieId,
+                        idArray,
                         "");
 
                 Uri uri = null;
                 int rowsDeleted = 0;
 
                 if (!(cursor.moveToFirst()) || cursor.getCount() ==0) {
-                    uri = movieActivity.getContentResolver().insert(MovieEntry.CONTENT_URI, values);
+                    uri = movieActivity.getContentResolver().insert(CONTENT_URI, values);
                     if (uri != null) {
                         Toast.makeText(getContext(), "Saved " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     rowsDeleted = movieActivity.getContentResolver().delete(
                             // TODO: problem here w/URI
-                        MovieEntry.CONTENT_URI,
+                        CONTENT_URI,
                         MovieEntry.COLUMN_ID + "=?",
-                        movieId);
+                        idArray);
                     if (rowsDeleted == 1) {
                         Toast.makeText(getContext(), "Deleted " + mMovie.getTitle() + " as favorite", Toast.LENGTH_SHORT).show();
                     }

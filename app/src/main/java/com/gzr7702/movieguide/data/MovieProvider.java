@@ -31,9 +31,9 @@ public class MovieProvider extends ContentProvider {
 
     public static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        // match all movies
+        // match all movies by matching the MOVIES id
         uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_MOVIES, MOVIES);
-        // match single movie
+        // match single movie by matching MOVIE_WITH_ID
         uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_MOVIES + "/#", MOVIE_WITH_ID);
 
         return uriMatcher;
@@ -110,12 +110,13 @@ public class MovieProvider extends ContentProvider {
         // Keep track of the number of deleted tasks
         int tasksDeleted;
 
+        // TODO: do we need uri to match one?
         switch (match) {
-            case MOVIE_WITH_ID:
+            case MOVIES:
                 // Get the task ID from the URI path
-                String id = uri.getPathSegments().get(1);
+                //String id = uri.getPathSegments().get(1);
                 // Use selections/selectionArgs to filter for this ID
-                tasksDeleted = db.delete(TABLE_NAME, "_id=?", new String[]{id});
+                tasksDeleted = db.delete(TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
