@@ -7,14 +7,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,9 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gzr7702.movieguide.data.MovieContract;
 import com.gzr7702.movieguide.data.MovieContract.MovieEntry;
-import com.gzr7702.movieguide.data.MovieDbHelper;
 import com.gzr7702.movieguide.models.Movie;
 import com.gzr7702.movieguide.models.Review;
 import com.gzr7702.movieguide.models.ReviewResponse;
@@ -37,13 +32,11 @@ import com.gzr7702.movieguide.models.VideoResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.gzr7702.movieguide.data.MovieContract.BASE_CONTENT_URI;
 import static com.gzr7702.movieguide.data.MovieContract.MovieEntry.CONTENT_URI;
 
 public class DetailFragment extends Fragment {
@@ -60,8 +53,6 @@ public class DetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle onSavedInstanceState) {
         super.onCreate(onSavedInstanceState);
-        // TODO: app is dying on tablet on rotation
-        // TODO: pull from
         Intent intent = getActivity().getIntent();
         mMovie = intent.getExtras().getParcelable("movie");
 
@@ -120,8 +111,6 @@ public class DetailFragment extends Fragment {
                 Uri queryUri = MovieEntry.CONTENT_URI;
                 queryUri.buildUpon().appendPath("" + movieId).build();
 
-                // TODO: move to Asynctask
-
                 // Query for title, insert if not found, otherwise, delete
                 Cursor cursor = movieActivity.getContentResolver().query(queryUri,
                         idColumn,
@@ -139,7 +128,6 @@ public class DetailFragment extends Fragment {
                     }
                 } else {
                     rowsDeleted = movieActivity.getContentResolver().delete(
-                            // TODO: problem here w/URI
                         CONTENT_URI,
                         MovieEntry.COLUMN_ID + "=?",
                         idArray);

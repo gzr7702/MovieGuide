@@ -107,7 +107,10 @@ public class MovieFragment extends Fragment {
 
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "popular");
 
-        if (sortOrder != mLatestSortOrder) {
+        if (sortOrder.equals("favorites")) {
+            // update list in case we deleted a favorite
+            updateMovieData();
+        } else if (sortOrder != mLatestSortOrder) {
             updateMovieData();
         }
     }
@@ -117,7 +120,6 @@ public class MovieFragment extends Fragment {
     */
     private void updateMovieData() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-        // TODO: check preferences id
         String sortOrder = sharedPref.getString(SettingsActivity.KEY_PREF_SORT_ORDER, "");
         mLatestSortOrder = sortOrder;
         Call<MoviesResponse> call;
@@ -132,7 +134,6 @@ public class MovieFragment extends Fragment {
                         null,
                         null,
                         null);
-                // TODO: Need to iterate through cursor and build movie list
 
                 try {
                     int movieIdIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID);
@@ -157,7 +158,6 @@ public class MovieFragment extends Fragment {
                     cursor.close();
                 }
 
-                // TODO: need default movie for tablet ======================================
                 mAdapter = new MovieAdapter(mMovieList, R.layout.movie_cell, getContext(),
                         new MovieAdapter.OnItemClickListener() {
                             @Override

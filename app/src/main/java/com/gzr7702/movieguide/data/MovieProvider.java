@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.gzr7702.movieguide.models.Movie;
+
 import static com.gzr7702.movieguide.data.MovieContract.MovieEntry.TABLE_NAME;
 
 /**
@@ -83,6 +85,9 @@ public class MovieProvider extends ContentProvider {
                         sortOrder);
                 break;
             case MOVIE_WITH_ID:
+                selection = MovieContract.MovieEntry.COLUMN_ID + "=?";
+                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri))};
+
                 retCursor = db.query(
                         TABLE_NAME,
                         projection,
@@ -110,7 +115,6 @@ public class MovieProvider extends ContentProvider {
         // Keep track of the number of deleted tasks
         int tasksDeleted;
 
-        // TODO: do we need uri to match one?
         switch (match) {
             case MOVIES:
                 // Get the task ID from the URI path
