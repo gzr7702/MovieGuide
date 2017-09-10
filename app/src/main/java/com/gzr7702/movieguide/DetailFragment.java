@@ -63,6 +63,7 @@ public class DetailFragment extends Fragment {
                              final Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        final Activity movieActivity = getActivity();
 
         TextView titleView = (TextView) rootView.findViewById(R.id.detail_title_textview);
         ImageView posterView = (ImageView) rootView.findViewById(R.id.detail_movie_poster);
@@ -104,7 +105,6 @@ public class DetailFragment extends Fragment {
                 values.put(MovieEntry.COLUMN_RATING, mMovie.getVoteAverage());
                 values.put(MovieEntry.COLUMN_PLOT_SUMMARY, mMovie.getOverview());
 
-                Activity movieActivity = getActivity();
                 int movieId= mMovie.getID();
                 String[] idArray = {Integer.toString(movieId)};
                 String[] idColumn = {MovieEntry.COLUMN_ID};
@@ -161,8 +161,7 @@ public class DetailFragment extends Fragment {
 
                         for (final Video video : mVideoList) {
 
-                            View videoContainer = LayoutInflater.from(getActivity()).inflate(
-                                    R.layout.video_view, null);
+                            View videoContainer = LayoutInflater.from(movieActivity).inflate(R.layout.video_view, null);
 
                             videoContainer.setOnClickListener(new View.OnClickListener() {
                                 @Override
